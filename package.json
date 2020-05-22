@@ -8,20 +8,27 @@
     "bcrypt": "^3.0.8",
     "body-parser": "^1.19.0",
     "class-transformer": "^0.2.3",
-    "class-validator": "^0.11.0",
+    "class-validator": "^0.12.2",
     "cookie-parser": "^1.4.4",
+    "cors": "^2.8.5",
+    "@types/cors": "^2.8.6",
     "dotenv": "^8.2.0",
     "envalid": "^6.0.1",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.8.11"
+    "moment-timezone": "^0.5.31",
+    "mongoose": "^5.8.11",
+    "@types/mongoose": "^5.7.21",
+    "morgan": "^1.10.0",
+    "@types/morgan": "^1.9.0",
+    "env-cmd": "^10.1.0"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.2",
     "@types/express": "^4.17.2",
     "@types/jest": "^25.1.2",
     "@types/jsonwebtoken": "^8.3.7",
-    "@types/mongoose": "^5.7.13",
+    "@types/mongoose": "^5.7.21",
     "@types/node": "^13.7.0",
     "@types/supertest": "^2.0.8",
     "husky": "^4.2.1",
@@ -36,7 +43,8 @@
     "typescript": "^3.7.5"
   },
   "scripts": {
-    "dev": "ts-node ./src/server.ts",
+    "dev": "nodemon --exec ts-node src/server.ts",
+    "prod": "nodemon --exec NODE_ENV=production env-cmd -f .env.production ts-node src/server.ts",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "jest"
   },
