@@ -1,4 +1,5 @@
 import {Request, Response, NextFunction} from 'express';
+import UnauthorizedError from "./UnauthorizedError";
 
 export default (err: any, request: Request, response: Response, next: NextFunction) => {
 
@@ -14,7 +15,7 @@ export default (err: any, request: Request, response: Response, next: NextFuncti
 
     if (err.name === 'UnauthorizedError') {
         // jwt authentication error
-        return response.status(401).send({message: 'Invalid Token'});
+        next(new UnauthorizedError());
     }
 
     // default to 500 server error
