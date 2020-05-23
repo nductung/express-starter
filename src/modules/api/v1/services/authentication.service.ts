@@ -21,7 +21,10 @@ class AuthenticationService {
             {
                 ...userData,
                 password: hashedPassword,
-                role: "user"
+                role: "user",
+                avatar: {
+                    url: "https://www.akveo.com/ngx-admin/favicon.png"
+                }
             });
         const tokenData = this.tokenService.createToken(user, true);
         const cookie = this.cookieService.createCookie(tokenData);

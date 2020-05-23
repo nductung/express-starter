@@ -7,6 +7,9 @@ export interface InterfaceModelAuth extends mongoose.Document {
     first_name: string,
     last_name: string
     role: string,
+    avatar: {
+        url: string
+    }
     created_at: Date,
     updated_at: Date,
 }
@@ -19,6 +22,9 @@ const authSchema = new mongoose.Schema(
         first_name: {type: String, required: true},
         last_name: {type: String, required: true},
         role: {type: String, required: true},
+        avatar: {
+            url: String
+        },
         created_at: {type: Date, default: Date.now},
         updated_at: {type: Date}
     });
