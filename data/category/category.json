@@ -1,0 +1,387 @@
+[
+  {
+    "name": "Làm đẹp",
+    "sub": [
+      {
+        "name": "Trang điểm",
+        "sub": [
+          "Kem lót",
+          "Kem nền",
+          "Che khuyết điểm",
+          "Phấn phủ",
+          "Phấn má",
+          "Bảng mắt",
+          "Kẻ mắt",
+          "Kích mí",
+          "Lông mi giả/ Mascara/Bấm mi",
+          "Lông mày",
+          "Tạo khối/ bắt sáng",
+          "Cọ trang điểm/Mút trang điểm",
+          "Tổng hợp - Trang điểm",
+          "Bẳng mắt",
+          "Khác - Trang điểm"
+        ]
+      },
+      {
+        "name": "Chăm sóc da mặt",
+        "sub": [
+          "Tẩy trang",
+          "Sữa rửa mặt",
+          "Tẩy da chết",
+          "Trị thâm các vùng da tối màu",
+          "Toner",
+          "Serum & Sản phẩm đặc trị",
+          "Mặt nạ",
+          "Dưỡng ẩm",
+          "Chống nắng",
+          "Dưỡng mắt&mi",
+          "Dụng cụ chăm sóc da mặt",
+          "Các bước chăm sóc da mặt",
+          "Trị mụn",
+          "Tăng sắc tố da",
+          "Làm trắng",
+          "Chống lão hóa",
+          "Trị sẹo thâm",
+          "Hồi phục da",
+          "Thực phẩm bổ sung cho da mặt",
+          "Tổng hợp - Chăm sóc da mặt",
+          "Khác - Chăm sóc da mặt",
+          "Dưỡng môi"
+        ]
+      },
+      {
+        "name": "Chăm sóc thân thể",
+        "sub": [
+          "Sữa tắm/Xà phòng/Muối tắm",
+          "Dưỡng ẩm thân thể",
+          "Tẩy lông",
+          "Tẩy da chết thân thể",
+          "Chăm sóc bàn tay/bàn chân",
+          "Phụ khoa",
+          "Dụng cụ chăm sóc thân thể",
+          "Thực phẩm bổ sung cho thân thể",
+          "Các vấn đề về chăm sóc thân thể",
+          "Tổng hợp - Chăm sóc thân thể",
+          "Khác - Chăm sóc thân thể"
+        ]
+      },
+      {
+        "name": "Chăm sóc tóc & móng",
+        "sub": [
+          "Dầu gội",
+          "Dầu xả",
+          "Dưỡng tóc",
+          "Nhuộm tóc",
+          "Tạo kiểu tóc",
+          "Dụng cụ chăm sóc tóc",
+          "Chăm sóc móng"
+        ]
+      },
+      {
+        "name": "Mùi hương",
+        "sub": [
+          "Khử mùi",
+          "Body mist",
+          "Nước hoa",
+          "Tổng hợp - Mùi hương",
+          "Khác - Mùi hương"
+        ]
+      },
+      {
+        "name": "Chăm sóc răng miệng",
+        "sub": [
+          "Kem đánh răng",
+          "Nước súc miệng",
+          "Dụng cụ chăm sóc răng miệng",
+          "Các vấn đề về chăm sóc răng miệng",
+          "Tổng hợp - Chăm sóc răng miệng",
+          "Các sản phẩm tẩy trắng răng",
+          "Khác - Chăm sóc răng miệng"
+        ]
+      },
+      {
+        "name": "Phẫu thuật thẩm mĩ",
+        "sub": [
+          "Mắt",
+          "Lông mi/Lông mày",
+          "Mũi",
+          "Môi",
+          "Cằm",
+          "Má",
+          "Ngực",
+          "Mông",
+          "Tổng hợp - Phẫu thuật thẩm mĩ",
+          "Khác - Phẫu thuật thẩm mĩ"
+        ]
+      },
+      {
+        "name": "Tổng hợp",
+        "sub": []
+      },
+      {
+        "name": "Khác",
+        "sub": []
+      }
+    ]
+  },
+  {
+    "name": "Ẩm thực",
+    "sub": [
+      "Đồ ăn vặt",
+      "Món lẩu/nướng",
+      "Món ăn bình dân",
+      "Cơm văn phòng",
+      "Món ăn chay",
+      "Bar/Pub",
+      "Cafe/Dessert",
+      "Bánh ngọt",
+      "Quán nhậu",
+      "Shop online",
+      "Đồ nước ngoài",
+      "Nhà hàng sang trọng",
+      "Tổng hợp - Ẩm thực"
+    ]
+  },
+  {
+    "name": "Thời trang",
+    "sub": [
+      "Phong cách tối giản",
+      "Phong cách Tomboy",
+      "Phong cách ton sur ton",
+      "Phong cách Darkwear",
+      "Phong cách năng động",
+      "Phong cách phóng khoáng",
+      "Phong cách gợi cảm",
+      "Phong cách cổ điển",
+      "Phong cách công sở",
+      "Phong cách khác",
+      "Tổng hợp - Thời trang"
+    ]
+  },
+  {
+    "name": "Sức khỏe",
+    "sub": [
+      {
+        "name": "Chế độ ăn",
+        "sub": [
+          "Low - carb",
+          "Keto",
+          "Eat clean",
+          "Tổng hợp - Chế độ ăn",
+          "Khác - Chế độ ăn"
+        ]
+      },
+      {
+        "name": "Tập luyện",
+        "sub": [
+          "Yoga",
+          "Gym",
+          "Nhảy hiện đại",
+          "Pilates",
+          "Tổng hợp - Tập luyện",
+          "Khác - Tập luyện"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Du lịch",
+    "sub": [
+      {
+        "name": "Việt Nam",
+        "sub": [
+          "An Giang",
+          "Bà Rịa - Vũng Tàu",
+          "Bắc Giang",
+          "Bắc Kạn",
+          "Bạc Liêu",
+          "Bắc Ninh",
+          "Bến Tre",
+          "Bình Định",
+          "Bình Dương",
+          "Bình Phước",
+          "Bình Thuận",
+          "Cà Mau",
+          "Cao Bằng",
+          "Đắk Lắk",
+          "Đắk Nông",
+          "Điện Biên",
+          "Đồng Nai",
+          "Đồng Tháp",
+          "Gia Lai",
+          "Hà Giang",
+          "Hà Nam",
+          "Hà Nội",
+          "Hà Tĩnh",
+          "Hải Dương",
+          "Hậu Giang",
+          "Hòa Bình",
+          "Hưng Yên",
+          "Khánh Hòa",
+          "Kiên Giang",
+          "Kon Tum",
+          "Lai Châu",
+          "Lâm Đồng",
+          "Lạng Sơn",
+          "Lào Cai",
+          "Long An",
+          "Nam Định",
+          "Nghệ An",
+          "Ninh Bình",
+          "Ninh Thuận",
+          "Phú Thọ",
+          "Quảng Bình",
+          "Quảng Nam",
+          "Quảng Ngãi",
+          "Quảng Ninh",
+          "Quảng Trị",
+          "Sóc Trăng",
+          "Sơn La",
+          "Tây Ninh",
+          "Thái Bình",
+          "Thái Nguyên",
+          "Thanh Hóa",
+          "Thừa Thiên Huế",
+          "Tiền Giang",
+          "Trà Vinh",
+          "Tuyên Quang",
+          "Vĩnh Long",
+          "Vĩnh Phúc",
+          "Yên Bái",
+          "Phú Yên",
+          "Cần Thơ",
+          "Đà Nẵng",
+          "Hải Phòng",
+          "TP HCM",
+          "Tổng hợp - Việt Nam"
+        ]
+      },
+      {
+        "name": "Châu Á",
+        "sub": [
+          "Thái Lan",
+          "Singapore",
+          "Malaysia",
+          "Đài Loan",
+          "Trung Quốc",
+          "Hong Kong",
+          "Nhật Bản",
+          "Hàn Quốc",
+          "Myanmar",
+          "Indonesia",
+          "Các tiểu vương quốc Ả Rập",
+          "Campuchia",
+          "Maldives",
+          "Sri Lanka",
+          "Lào",
+          "Jordan",
+          "Nepal",
+          "Ấn Độ",
+          "Philippines",
+          "Israel",
+          "Các nước Châu Á khác",
+          "Tổng hợp - Châu Á"
+        ]
+      },
+      {
+        "name": "Châu Âu",
+        "sub": [
+          "Pháp",
+          "Ý",
+          "Anh",
+          "Tây Ban Nha",
+          "Áo",
+          "Thổ Nhĩ Kỳ",
+          "Cộng hòa Séc",
+          "Hà Lan",
+          "Đức",
+          "Hy Lạp",
+          "Hungary",
+          "Bồ Đào Nha",
+          "Nga",
+          "Iceland",
+          "Vatican",
+          "Đan Mạch",
+          "Thụy Điển",
+          "Thụy Sỹ",
+          "Phần Lan",
+          "Na Uy",
+          "Ba Lan",
+          "Các nước Châu Âu khác",
+          "Tổng hợp - Châu Âu"
+        ]
+      },
+      {
+        "name": "Châu Bắc Mỹ",
+        "sub": [
+          "Canada",
+          "Mỹ",
+          "Mexico",
+          "Cuba",
+          "Hawaii",
+          "Costa Rica",
+          "Các nước Châu Bắc Mỹ khác",
+          "Tổng hợp - Châu Bắc Mỹ"
+        ]
+      },
+      {
+        "name": "Châu Nam Mỹ",
+        "sub": [
+          "Peru",
+          "Argentina",
+          "Brazil",
+          "Chile",
+          "Bolivia",
+          "Ecuador",
+          "Colombia",
+          "Aruba",
+          "Uruguay",
+          "Caribbean",
+          "Paraguay",
+          "Các nước Châu Nam Mỹ khác",
+          "Tổng hợp - Châu Nam Mỹ"
+        ]
+      },
+      {
+        "name": "Châu Đại Dương",
+        "sub": [
+          "Australia",
+          "New Zealand",
+          "Polynésie",
+          "Fiji",
+          "Guam",
+          "Tổng hợp - Châu Đại Dương",
+          "Các nước Châu Đại Dương khác"
+        ]
+      },
+      {
+        "name": "Châu Phi",
+        "sub": [
+          "Morocco",
+          "Ai Cập",
+          "Nam Phi",
+          "Tanzania",
+          "Seychelles",
+          "Kenya",
+          "Mauritius",
+          "Nairobi",
+          "Madagascar",
+          "Botswana",
+          "Zimbabwe",
+          "Ethiopia",
+          "Namibia",
+          "Uganda",
+          "Các nước Châu Phi khác",
+          "Tổng hợp - Châu Phi"
+        ]
+      },
+      {
+        "name": "Châu Nam Cực",
+        "sub": [
+          "Tổng hợp - Châu Nam Cực"
+        ]
+      }
+
+    ]
+  }
+]
