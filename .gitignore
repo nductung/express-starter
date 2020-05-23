@@ -68,7 +68,7 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
+#.env
 .env.test
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -109,8 +109,10 @@ tmp/
 temp/
 
 #
-.idea
-.env.production
+#data/
+.idea/
+#.env
+#.env.production
 yarn.lock
 package-lock.json
 npm-debug.log
