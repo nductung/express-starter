@@ -110,9 +110,9 @@ temp/
 
 #
 #data/
-.idea/
 #.env
 #.env.production
+.idea/
 yarn.lock
 package-lock.json
 npm-debug.log
