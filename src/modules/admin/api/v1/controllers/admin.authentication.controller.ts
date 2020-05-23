@@ -12,8 +12,8 @@ import authModel from "../../../../../models/auth.model";
 import validationMiddleware from "../../../../../middleware/validation.middleware";
 import authMiddleware from "../../../../../middleware/auth.middleware";
 import WrongCredentialsException from "../../../../../exceptions/WrongCredentialsException";
-import ChangePasswordDtoDto from '../validations/authentication/changePassword.dto';
 import DataStoredInToken from '../../../../../interfaces/dataStoredInToken';
+import ChangePasswordDtoDto from '../validations/authentication/changePassword.dto';
 
 export default class AdminAuthenticationController extends ControllerBase implements Controller {
     public cookieService = new CookieService();

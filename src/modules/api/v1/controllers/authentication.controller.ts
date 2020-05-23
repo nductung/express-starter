@@ -13,7 +13,7 @@ import authModel from "../../../../models/auth.model";
 import {User} from "../../../../models/role.model";
 import * as jwt from 'jsonwebtoken';
 import DataStoredInToken from '../../../../interfaces/dataStoredInToken';
-import ChangePasswordDtoDto from '../../../admin/api/v1/validations/authentication/changePassword.dto';
+import ChangePasswordDtoDto from '../validations/authentication/changePassword.dto';
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public cookieService = new CookieService();
