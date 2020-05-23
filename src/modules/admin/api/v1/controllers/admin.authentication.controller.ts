@@ -5,7 +5,6 @@ import {NextFunction, Request, Response} from 'express';
 import * as bcrypt from 'bcrypt';
 import * as jwt from "jsonwebtoken";
 import {Admin} from "../../../../../models/role.model";
-import Controller from "../../../../../interfaces/controller.interface";
 import CookieService from "../../../../../services/cookie.service";
 import TokenService from "../../../../../services/token.service";
 import authModel from "../../../../../models/auth.model";
@@ -14,6 +13,7 @@ import authMiddleware from "../../../../../middleware/auth.middleware";
 import WrongCredentialsException from "../../../../../exceptions/WrongCredentialsException";
 import DataStoredInToken from '../../../../../interfaces/dataStoredInToken';
 import ChangePasswordDtoDto from '../validations/authentication/changePassword.dto';
+import Controller from '../../../../../interfaces/controller.interface';
 
 export default class AdminAuthenticationController extends ControllerBase implements Controller {
     public cookieService = new CookieService();

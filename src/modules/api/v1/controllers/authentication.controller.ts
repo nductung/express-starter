@@ -8,12 +8,12 @@ import CookieService from "../../../../services/cookie.service";
 import WrongCredentialsException from "../../../../exceptions/WrongCredentialsException";
 import authMiddleware from "../../../../middleware/auth.middleware";
 import validationMiddleware from "../../../../middleware/validation.middleware";
-import Controller from "../../../../interfaces/controller.interface";
 import authModel from "../../../../models/auth.model";
 import {User} from "../../../../models/role.model";
 import * as jwt from 'jsonwebtoken';
 import DataStoredInToken from '../../../../interfaces/dataStoredInToken';
 import ChangePasswordDtoDto from '../validations/authentication/changePassword.dto';
+import Controller from '../../../../interfaces/controller.interface';
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public cookieService = new CookieService();

@@ -4,8 +4,9 @@ import IDDto from "../validations/checkID.dto";
 import authMiddleware from '../../../../../middleware/auth.middleware';
 import paramMiddleware from '../../../../../middleware/param.middleware';
 import {NextFunction, Request, Response} from 'express';
+import Controller from '../../../../../interfaces/controller.interface';
 
-class AdminJobController extends ControllerBase {
+class AdminJobController extends ControllerBase implements Controller {
 
     constructor() {
         super(__filename);

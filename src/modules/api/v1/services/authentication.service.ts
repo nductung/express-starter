@@ -4,13 +4,18 @@ import RegisterDto from "../validations/authentication/register.dto";
 import * as bcrypt from 'bcrypt';
 import TokenService from "../../../../services/token.service";
 import CookieService from "../../../../services/cookie.service";
+import {ServiceBase} from '../../base/service.base';
 
-class AuthenticationService {
+class AuthenticationService extends ServiceBase {
     public user = authModel;
     public tokenService = new TokenService();
     public cookieService = new CookieService();
 
-    public async register(userData: RegisterDto) {
+    constructor() {
+        super(authModel);
+    }
+
+    public register = async (userData: RegisterDto) => {
         if (
             await this.user.findOne({email: userData.email})
         ) {
@@ -32,7 +37,7 @@ class AuthenticationService {
             cookie,
             user,
         };
-    }
+    };
 
 }
 

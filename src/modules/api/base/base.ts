@@ -3,7 +3,7 @@ import AuthenticationService from "../v1/services/authentication.service";
 
 export class Base {
     public globals: any = global;
-    public authenticationService: any = new AuthenticationService();
+    public authenticationService = new AuthenticationService();
 
     public getProfile = (): InterfaceModelAuth => this.globals.user;
 

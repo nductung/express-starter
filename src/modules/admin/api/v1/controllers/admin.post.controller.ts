@@ -6,8 +6,9 @@ import authMiddleware from '../../../../../middleware/auth.middleware';
 import validationMiddleware from '../../../../../middleware/validation.middleware';
 import paramMiddleware from '../../../../../middleware/param.middleware';
 import {NextFunction, Request, Response} from 'express';
+import Controller from '../../../../../interfaces/controller.interface';
 
-class AdminPostController extends ControllerBase {
+class AdminPostController extends ControllerBase implements Controller {
 
     constructor() {
         super(__filename);

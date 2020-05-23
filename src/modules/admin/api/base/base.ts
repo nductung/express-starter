@@ -10,7 +10,7 @@ import {AdminJobService} from '../v1/services/admin.job.service';
 
 export class Base {
     public globals: any = global;
-    public adminAuthenticationService: any = new AdminAuthenticationService();
+    public adminAuthenticationService = new AdminAuthenticationService();
     public adminCategoryService = new AdminCategoryService();
     public adminCommentService = new AdminCommentService();
     public adminHashtagService = new AdminHashtagService();
