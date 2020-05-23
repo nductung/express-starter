@@ -21,7 +21,7 @@ class AdminAuthenticationService {
             {
                 ...userData,
                 password: hashedPassword,
-                role: "admin"
+                role: "pending"
             });
         const tokenData = this.tokenService.createToken(user, true);
         const cookie = this.cookieService.createCookie(tokenData);
@@ -33,4 +33,4 @@ class AdminAuthenticationService {
 
 }
 
-export default AdminAuthenticationService
+export default AdminAuthenticationService;

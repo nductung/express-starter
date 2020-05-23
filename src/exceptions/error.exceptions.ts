@@ -1,4 +1,4 @@
-import {Request, Response, NextFunction} from 'express';
+import {NextFunction, Request, Response} from 'express';
 import UnauthorizedError from "./UnauthorizedError";
 
 export default (err: any, request: Request, response: Response, next: NextFunction) => {

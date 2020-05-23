@@ -10,21 +10,6 @@ import * as path from "path";
 
 class App {
 
-    private static async connectToTheDatabase() {
-        const connectionOptions = {
-            useCreateIndex: true,
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            useFindAndModify: false
-        };
-        // tslint:disable-next-line:max-line-length
-        await mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_PATH}`, connectionOptions)
-            .then(() => console.log('MongoDB Connected'))
-            .catch((err) => {
-                console.log(err);
-            });
-    }
-
     public app: express.Application;
 
     constructor(controllers: Controller[]) {
@@ -42,6 +27,21 @@ class App {
             next();
         });
 
+    }
+
+    private static async connectToTheDatabase() {
+        const connectionOptions = {
+            useCreateIndex: true,
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            useFindAndModify: false
+        };
+        // tslint:disable-next-line:max-line-length
+        await mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_PATH}`, connectionOptions)
+            .then(() => console.log('MongoDB Connected'))
+            .catch((err) => {
+                console.log(err);
+            });
     }
 
     public listen() {

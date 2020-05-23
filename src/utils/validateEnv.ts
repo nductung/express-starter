@@ -1,6 +1,4 @@
-import {
-    cleanEnv, str, num, port
-} from 'envalid';
+import {cleanEnv, num, port, str} from 'envalid';
 
 function validateEnv() {
     cleanEnv(process.env, {

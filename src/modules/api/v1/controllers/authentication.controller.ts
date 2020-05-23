@@ -2,7 +2,7 @@ import {ControllerBase} from "../../base/controller.base";
 import LoginDto from '../validations/authentication/login.dto';
 import RegisterDto from '../validations/authentication/register.dto';
 import TokenService from "../../../../services/token.service";
-import {Request, Response, NextFunction} from 'express';
+import {NextFunction, Request, Response} from 'express';
 import * as bcrypt from 'bcrypt';
 import CookieService from "../../../../services/cookie.service";
 import WrongCredentialsException from "../../../../exceptions/WrongCredentialsException";
@@ -27,7 +27,7 @@ export default class AuthenticationController extends ControllerBase implements 
             .post(`${this.path}/authentication/register`, validationMiddleware(RegisterDto), this.registration)
             .post(`${this.path}/authentication/login`, validationMiddleware(LoginDto), this.loggingIn)
             .post(`${this.path}/authentication/logout`, authMiddleware(User), this.loggingOut)
-            .get(`${this.path}/current`, authMiddleware(User), this.getCurrent)
+            .get(`${this.path}/current`, authMiddleware(User), this.getCurrent);
     };
 
     private registration = async (request: Request, response: Response, next: NextFunction) => {
@@ -61,12 +61,12 @@ export default class AuthenticationController extends ControllerBase implements 
                 };
                 response.setHeader('Set-Cookie', [this.cookieService.createCookie(tokenData)]);
                 response.send({
-                    data: {
-                        ...user.toJSON(),
-                        ...valueToken
-                    },
-                    message: "Success"
-                });
+                                  data: {
+                                      ...user.toJSON(),
+                                      ...valueToken
+                                  },
+                                  message: "Success"
+                              });
             } else {
                 next(new WrongCredentialsException());
             }
@@ -86,13 +86,13 @@ export default class AuthenticationController extends ControllerBase implements 
             const user = await authModel.findById(id);
 
             response.send({
-                data: {
-                    ...user.toJSON(),
-                },
-                message: "Success"
-            });
+                              data: {
+                                  ...user.toJSON(),
+                              },
+                              message: "Success"
+                          });
         } catch (e) {
-            next(e)
+            next(e);
         }
     };
 

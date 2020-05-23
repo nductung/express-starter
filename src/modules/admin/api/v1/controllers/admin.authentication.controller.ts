@@ -1,7 +1,7 @@
 import {ControllerBase} from "../../base/controller.base";
 import LoginDto from '../validations/authentication/login.dto';
 import RegisterDto from '../validations/authentication/register.dto';
-import {Request, Response, NextFunction} from 'express';
+import {NextFunction, Request, Response} from 'express';
 import * as bcrypt from 'bcrypt';
 import {Admin} from "../../../../../models/role.model";
 import Controller from "../../../../../interfaces/controller.interface";
@@ -24,10 +24,10 @@ export default class AdminAuthenticationController extends ControllerBase implem
 
     private initializeRoutes = () => {
         this.router
-        // .post(`${this.path}/authentication/register`, validationMiddleware(RegisterDto), this.registration)
+            .post(`${this.path}/authentication/register`, validationMiddleware(RegisterDto), this.registration)
             .post(`${this.path}/authentication/login`, validationMiddleware(LoginDto), this.loggingIn)
             .post(`${this.path}/authentication/logout`, authMiddleware(Admin), this.loggingOut)
-            .get(`${this.path}/current`, authMiddleware(Admin), this.getCurrent)
+            .get(`${this.path}/current`, authMiddleware(Admin), this.getCurrent);
     };
 
     private registration = async (request: Request, response: Response, next: NextFunction) => {
@@ -46,8 +46,8 @@ export default class AdminAuthenticationController extends ControllerBase implem
 
     private loggingIn = async (request: Request, response: Response, next: NextFunction) => {
         const logInData: LoginDto = request.body;
-        const user = await this.user.findOne({email: logInData.email, role: "admin"});
-        if (user) {
+        const user = await this.user.findOne({email: logInData.email});
+        if (user && user.role === 'admin') {
             const isPasswordMatching = await bcrypt.compare(
                 logInData.password,
                 user.get('password', null, {getters: false}),
@@ -61,15 +61,17 @@ export default class AdminAuthenticationController extends ControllerBase implem
                 };
                 response.setHeader('Set-Cookie', [this.cookieService.createCookie(tokenData)]);
                 response.send({
-                    data: {
-                        ...user.toJSON(),
-                        ...valueToken
-                    },
-                    message: "Success"
-                });
+                                  data: {
+                                      ...user.toJSON(),
+                                      ...valueToken
+                                  },
+                                  message: "Success"
+                              });
             } else {
                 next(new WrongCredentialsException());
             }
+        } else if (user && user.role === 'pending') {
+            response.status(401).send({message: "Unconfirmed account"});
         } else {
             next(new WrongCredentialsException());
         }
@@ -86,13 +88,13 @@ export default class AdminAuthenticationController extends ControllerBase implem
             const user = await authModel.findById(id);
 
             response.send({
-                data: {
-                    ...user.toJSON(),
-                },
-                message: "Success"
-            });
+                              data: {
+                                  ...user.toJSON(),
+                              },
+                              message: "Success"
+                          });
         } catch (e) {
-            next(e)
+            next(e);
         }
     };
 

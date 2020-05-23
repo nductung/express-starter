@@ -61,15 +61,14 @@ export class ServiceBase {
         const edges = items.map((item: any) => {
             next = Buffer.from(item._id.toString()).toString('base64');
             item._id = undefined;
-            return item
+            return item;
         });
 
         return {
             pageInfo: {hasNextPage, next},
             edges: transformer ? transformer(edges) : edges
-        }
+        };
     };
-
 
     /**
      *
@@ -111,6 +110,6 @@ export class ServiceBase {
                 current: parseInt(page ? page : "1", 10),
             },
             edges: transformer ? transformer(items) : items
-        }
-    }
+        };
+    };
 }
