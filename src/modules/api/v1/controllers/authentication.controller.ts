@@ -95,7 +95,7 @@ export default class AuthenticationController extends ControllerBase implements 
                 session: 0
             });
             response.setHeader('Set-Cookie', ['Authorization=;Max-age=0']);
-            // response.send(200);
+            response.send({message: "Success"});
         } catch (e) {
             next(e)
         }
@@ -106,12 +106,7 @@ export default class AuthenticationController extends ControllerBase implements 
             const id = this.getProfile()._id;
             const user = await userModel.findById(id);
 
-            response.send({
-                data: {
-                    ...userTransformer(user.toJSON()),
-                },
-                message: "Success"
-            });
+            response.send({data: {...userTransformer(user.toJSON()),}, message: "Success"});
         } catch (e) {
             next(e);
         }
@@ -135,9 +130,6 @@ export default class AuthenticationController extends ControllerBase implements 
                 user.session = 0;
                 await user.save();
                 this.loggingOut(request, response, next);
-                response.send({
-                    message: "Thay đổi mật khẩu thành công"
-                });
             } else {
                 response.send({message: "Mật khẩu hiện tại không đúng"});
             }

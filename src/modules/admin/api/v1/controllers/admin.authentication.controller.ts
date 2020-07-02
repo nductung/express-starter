@@ -92,7 +92,7 @@ export default class AdminAuthenticationController extends ControllerBase implem
                 session: 0
             });
             response.setHeader('Set-Cookie', ['Authorization=;Max-age=0']);
-            // response.send(200);
+            response.send({message: "Success"});
         } catch (e) {
             next(e)
         }
@@ -100,15 +100,8 @@ export default class AdminAuthenticationController extends ControllerBase implem
 
     private getCurrent = async (request: Request, response: Response, next: NextFunction) => {
         try {
-            const id = this.getProfile()._id;
-            const user = await userModel.findById(id);
-
-            response.send({
-                data: {
-                    ...userTransformer(user.toJSON()),
-                },
-                message: "Success"
-            });
+            const user = await userModel.findById(this.getProfile()._id);
+            response.send({data: {...userTransformer(user.toJSON()),}, message: "Success"});
         } catch (e) {
             next(e);
         }
