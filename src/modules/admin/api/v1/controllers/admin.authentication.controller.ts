@@ -12,6 +12,8 @@ import WrongCredentialsException from "../../../../../exceptions/WrongCredential
 import Controller from '../../../../../interfaces/controller.interface';
 import Role from "../../../../../models/role.model";
 import userTransformer from "../transformers/user.tranformer";
+import * as jwt from "jsonwebtoken";
+import DataStoredInToken from "../../../../../interfaces/dataStoredInToken";
 
 export default class AdminAuthenticationController extends ControllerBase implements Controller {
     public cookieService = new CookieService();
@@ -58,8 +60,16 @@ export default class AdminAuthenticationController extends ControllerBase implem
                 const refreshTokenData = this.tokenService.createToken(user, false);
                 const valueToken = {
                     accessToken: tokenData.token,
-                    refreshToken: refreshTokenData.token,
+                    // refreshToken: refreshTokenData.token,
                 };
+
+                //
+                const secret: string = process.env.JWT_SECRET;
+                const verificationResponse: any = jwt.verify(valueToken.accessToken, secret) as DataStoredInToken;
+                await this.user.findByIdAndUpdate(user._id, {
+                    session: verificationResponse.exp
+                });
+
                 response.setHeader('Set-Cookie', [this.cookieService.createCookie(tokenData)]);
                 response.send({
                     data: {

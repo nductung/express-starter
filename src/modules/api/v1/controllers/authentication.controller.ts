@@ -13,6 +13,8 @@ import Role from "../../../../models/role.model";
 import Controller from '../../../../interfaces/controller.interface';
 import userTransformer from "../transformers/user.tranformer";
 import ChangePasswordDto from "../dto/authentication/changePassword.dto";
+import DataStoredInToken from "../../../../interfaces/dataStoredInToken";
+import * as jwt from "jsonwebtoken";
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public cookieService = new CookieService();
@@ -61,8 +63,16 @@ export default class AuthenticationController extends ControllerBase implements 
                 const refreshTokenData = this.tokenService.createToken(user, false);
                 const valueToken = {
                     accessToken: tokenData.token,
-                    refreshToken: refreshTokenData.token,
+                    // refreshToken: refreshTokenData.token,
                 };
+
+                //
+                const secret: string = process.env.JWT_SECRET;
+                const verificationResponse: any = jwt.verify(valueToken.accessToken, secret) as DataStoredInToken;
+                await this.user.findByIdAndUpdate(user._id, {
+                    session: verificationResponse.exp
+                });
+
                 response.setHeader('Set-Cookie', [this.cookieService.createCookie(tokenData)]);
                 response.send({
                     data: {
@@ -119,6 +129,7 @@ export default class AuthenticationController extends ControllerBase implements 
             if (match) {
                 user.password = await bcrypt.hash(request.body.newPassword, 10);
                 user.updatedAt = new Date();
+                user.session = 0;
                 await user.save();
                 this.loggingOut(request, response, next);
                 response.send({

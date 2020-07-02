@@ -5,6 +5,7 @@ import {NextFunction, Response} from "express";
 import DataStoredInToken from "../interfaces/dataStoredInToken";
 import WrongAuthenticationTokenException from "../exceptions/WrongAuthenticationTokenException";
 import AuthenticationTokenMissingException from "../exceptions/AuthenticationTokenMissingException";
+import WrongAuthenticationSessionExpired from "../exceptions/WrongAuthenticationSessionExpired";
 
 export default (roles: any = []) => {
     // roles param can be a single role string (e.g. Role.User or 'User')
@@ -34,10 +35,14 @@ export default (roles: any = []) => {
                     const id = verificationResponse._id;
                     const user = await userModel.findById(id);
                     if (user) {
-                        const globals: any = global;
-                        globals.user = request.user = user;
-                        // authentication and authorization successful
-                        next();
+                        if ((user.session !== undefined) && (user.session !== verificationResponse.exp)) {
+                            next(new WrongAuthenticationSessionExpired());
+                        } else {
+                            const globals: any = global;
+                            globals.user = request.user = user;
+                            // authentication and authorization successful
+                            next();
+                        }
                     } else {
                         next(new WrongAuthenticationTokenException());
                     }

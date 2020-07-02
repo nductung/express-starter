@@ -7,6 +7,7 @@ interface InterfaceModelUser {
     email: string;
     password: string;
     role: string,
+    session: number,
     createdAt: Date,
     updatedAt: Date,
 }

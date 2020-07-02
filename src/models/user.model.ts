@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema(
             required: true
         },
         role: {type: String, default: 'user'},
+        session: {type: Number, default: undefined},
         createdAt: {type: Date, default: Date.now},
         updatedAt: {type: Date, default: Date.now}
     }, {
