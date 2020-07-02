@@ -39,7 +39,7 @@ export default (roles: any = []) => {
                             next(new WrongAuthenticationSessionExpired());
                         } else {
                             const globals: any = global;
-                            globals.user = request.user = user;
+                            globals.__user = request.user = user;
                             // authentication and authorization successful
                             next();
                         }

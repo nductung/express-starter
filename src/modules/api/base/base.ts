@@ -5,6 +5,6 @@ export class Base {
     public globals: any = global;
     public authenticationService = new AuthenticationService();
 
-    public getProfile = (): InterfaceModelUser => this.globals.user;
+    public getProfile = (): InterfaceModelUser => this.globals.__user;
 
 }
