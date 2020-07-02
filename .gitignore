@@ -110,11 +110,12 @@ temp/
 
 #
 #data/
-#.env
-#.env.production
+.env
+.env.prod
 .idea/
 yarn.lock
 package-lock.json
 npm-debug.log
 
 # End of https://www.gitignore.io/api/node
+
