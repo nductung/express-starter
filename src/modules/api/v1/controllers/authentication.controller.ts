@@ -12,6 +12,7 @@ import userModel from "../../../../models/user.model";
 import Role from "../../../../models/role.model";
 import Controller from '../../../../interfaces/controller.interface';
 import userTransformer from "../transformers/user.tranformer";
+import ChangePasswordDto from "../dto/authentication/changePassword.dto";
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public cookieService = new CookieService();
@@ -28,7 +29,9 @@ export default class AuthenticationController extends ControllerBase implements 
             .post(`${this.path}/authentication/register`, validationMiddleware(RegisterDto), this.registration)
             .post(`${this.path}/authentication/login`, validationMiddleware(LoginDto), this.loggingIn)
             .post(`${this.path}/authentication/logout`, authMiddleware(Role.User), this.loggingOut)
-            .get(`${this.path}/current`, authMiddleware(Role.User), this.getCurrent);
+            .get(`${this.path}/current`, authMiddleware(Role.User), this.getCurrent)
+            .post(`${this.path}/authentication/change-password`, authMiddleware(Role.User),
+                validationMiddleware(ChangePasswordDto), this.changePassword)
     };
 
     private registration = async (request: Request, response: Response, next: NextFunction) => {
@@ -79,7 +82,7 @@ export default class AuthenticationController extends ControllerBase implements 
     private loggingOut = (request: Request, response: Response, next: NextFunction) => {
         try {
             response.setHeader('Set-Cookie', ['Authorization=;Max-age=0']);
-            response.send(200);
+            // response.send(200);
         } catch (e) {
             next(e)
         }
@@ -96,6 +99,35 @@ export default class AuthenticationController extends ControllerBase implements 
                 },
                 message: "Success"
             });
+        } catch (e) {
+            next(e);
+        }
+    };
+
+    private changePassword = async (request: Request, response: Response, next: NextFunction) => {
+        try {
+            if (request.body.currentPassword === request.body.newPassword) {
+                return response.send({message: `Mật khẩu mới phải khác mật khẩu hiện tại`});
+            } else if (request.body.newPassword !== request.body.confirmPassword) {
+                return response.send({message: `Mật khẩu mới và mật khẩu xác nhận không giống nhau`});
+            }
+
+            const id = this.getProfile()._id;
+            const user = await userModel.findById(id);
+            const match = await bcrypt.compare(request.body.currentPassword, user.password);
+
+            if (match) {
+                user.password = await bcrypt.hash(request.body.newPassword, 10);
+                user.updatedAt = new Date();
+                await user.save();
+                this.loggingOut(request, response, next);
+                response.send({
+                    message: "Thay đổi mật khẩu thành công"
+                });
+            } else {
+                response.send({message: "Mật khẩu hiện tại không đúng"});
+            }
+
         } catch (e) {
             next(e);
         }

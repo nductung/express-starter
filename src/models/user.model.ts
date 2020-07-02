@@ -9,8 +9,7 @@ const userSchema = new mongoose.Schema(
         email: {type: String, unique: true, required: true},
         password: {
             type: String,
-            required: true,
-            get: (): undefined => undefined,
+            required: true
         },
         role: {type: String, default: 'user'},
         createdAt: {type: Date, default: Date.now},
