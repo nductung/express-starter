@@ -3,9 +3,9 @@ import * as jwt from 'jsonwebtoken';
 import userModel from "../models/user.model";
 import {NextFunction, Response} from "express";
 import DataStoredInToken from "../interfaces/dataStoredInToken";
-import WrongAuthenticationTokenException from "../exceptions/WrongAuthenticationTokenException";
-import AuthenticationTokenMissingException from "../exceptions/AuthenticationTokenMissingException";
 import WrongAuthenticationSessionExpired from "../exceptions/WrongAuthenticationSessionExpired";
+import AuthenticationTokenException from "../exceptions/AuthenticationTokenException";
+import WrongCredentialsException from "../exceptions/WrongCredentialsException";
 
 export default (roles: any = []) => {
     // roles param can be a single role string (e.g. Role.User or 'User')
@@ -30,7 +30,7 @@ export default (roles: any = []) => {
                     request.role = verificationResponse.role;
                     if (roles.length && !roles.includes(request.user.role)) {
                         // user's role is not authorized
-                        next(new WrongAuthenticationTokenException());
+                        next(new WrongCredentialsException());
                     } else {
                         const id = verificationResponse._id;
                         const user = await userModel.findById(id);
@@ -44,14 +44,14 @@ export default (roles: any = []) => {
                                 next();
                             }
                         } else {
-                            next(new WrongAuthenticationTokenException());
+                            next(new AuthenticationTokenException());
                         }
                     }
                 } catch (e) {
-                    next(new WrongAuthenticationTokenException());
+                    next(new AuthenticationTokenException());
                 }
             } else {
-                next(new AuthenticationTokenMissingException());
+                next(new AuthenticationTokenException());
             }
         }
     ];
