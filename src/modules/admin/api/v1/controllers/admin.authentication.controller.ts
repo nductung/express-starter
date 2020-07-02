@@ -3,7 +3,6 @@ import LoginDto from '../dto/authentication/login.dto';
 import RegisterDto from '../dto/authentication/register.dto';
 import {NextFunction, Request, Response} from 'express';
 import * as bcrypt from 'bcrypt';
-import CookieService from "../../../../../services/cookie.service";
 import TokenService from "../../../../../services/token.service";
 import userModel from "../../../../../models/user.model";
 import validationMiddleware from "../../../../../middleware/validation.middleware";
@@ -12,11 +11,8 @@ import WrongCredentialsException from "../../../../../exceptions/WrongCredential
 import Controller from '../../../../../interfaces/controller.interface';
 import Role from "../../../../../models/role.model";
 import userTransformer from "../transformers/user.tranformer";
-import * as jwt from "jsonwebtoken";
-import DataStoredInToken from "../../../../../interfaces/dataStoredInToken";
 
 export default class AdminAuthenticationController extends ControllerBase implements Controller {
-    public cookieService = new CookieService();
     public tokenService = new TokenService();
     private user = userModel;
 
@@ -37,11 +33,9 @@ export default class AdminAuthenticationController extends ControllerBase implem
         const userData: RegisterDto = request.body;
         try {
             const {
-                cookie,
-                user,
+                user
             } = await this.adminAuthenticationService.register(userData);
-            response.setHeader('Set-Cookie', [cookie]);
-            response.send(user);
+            response.send(userTransformer(user));
         } catch (error) {
             next(error);
         }
@@ -63,14 +57,6 @@ export default class AdminAuthenticationController extends ControllerBase implem
                     // refreshToken: refreshTokenData.token,
                 };
 
-                //
-                const secret: string = process.env.JWT_SECRET;
-                const verificationResponse: any = jwt.verify(valueToken.accessToken, secret) as DataStoredInToken;
-                await this.user.findByIdAndUpdate(user._id, {
-                    session: verificationResponse.exp
-                });
-
-                response.setHeader('Set-Cookie', [this.cookieService.createCookie(tokenData)]);
                 response.send({
                     data: {
                         ...userTransformer(user.toJSON()),
@@ -88,9 +74,6 @@ export default class AdminAuthenticationController extends ControllerBase implem
 
     private loggingOut = async (request: Request, response: Response, next: NextFunction) => {
         try {
-            await userModel.findByIdAndUpdate(this.getProfile()._id, {
-                session: 0
-            });
             response.setHeader('Set-Cookie', ['Authorization=;Max-age=0']);
             response.send({message: "Success"});
         } catch (e) {

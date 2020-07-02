@@ -4,7 +4,6 @@ import RegisterDto from '../dto/authentication/register.dto';
 import TokenService from "../../../../services/token.service";
 import {NextFunction, Request, Response} from 'express';
 import * as bcrypt from 'bcrypt';
-import CookieService from "../../../../services/cookie.service";
 import WrongCredentialsException from "../../../../exceptions/WrongCredentialsException";
 import authMiddleware from "../../../../middleware/auth.middleware";
 import validationMiddleware from "../../../../middleware/validation.middleware";
@@ -13,11 +12,8 @@ import Role from "../../../../models/role.model";
 import Controller from '../../../../interfaces/controller.interface';
 import userTransformer from "../transformers/user.tranformer";
 import ChangePasswordDto from "../dto/authentication/changePassword.dto";
-import DataStoredInToken from "../../../../interfaces/dataStoredInToken";
-import * as jwt from "jsonwebtoken";
 
 export default class AuthenticationController extends ControllerBase implements Controller {
-    public cookieService = new CookieService();
     public tokenService = new TokenService();
     private user = userModel;
 
@@ -40,11 +36,9 @@ export default class AuthenticationController extends ControllerBase implements 
         const userData: RegisterDto = request.body;
         try {
             const {
-                cookie,
-                user,
+                user
             } = await this.authenticationService.register(userData);
-            response.setHeader('Set-Cookie', [cookie]);
-            response.send(user);
+            response.send(userTransformer(user));
         } catch (error) {
             next(error);
         }
@@ -66,14 +60,6 @@ export default class AuthenticationController extends ControllerBase implements 
                     // refreshToken: refreshTokenData.token,
                 };
 
-                //
-                const secret: string = process.env.JWT_SECRET;
-                const verificationResponse: any = jwt.verify(valueToken.accessToken, secret) as DataStoredInToken;
-                await this.user.findByIdAndUpdate(user._id, {
-                    session: verificationResponse.exp
-                });
-
-                response.setHeader('Set-Cookie', [this.cookieService.createCookie(tokenData)]);
                 response.send({
                     data: {
                         ...userTransformer(user.toJSON()),
@@ -91,9 +77,6 @@ export default class AuthenticationController extends ControllerBase implements 
 
     private loggingOut = async (request: Request, response: Response, next: NextFunction) => {
         try {
-            await userModel.findByIdAndUpdate(this.getProfile()._id, {
-                session: 0
-            });
             response.setHeader('Set-Cookie', ['Authorization=;Max-age=0']);
             response.send({message: "Success"});
         } catch (e) {
@@ -127,9 +110,8 @@ export default class AuthenticationController extends ControllerBase implements 
             if (match) {
                 user.password = await bcrypt.hash(request.body.newPassword, 10);
                 user.updatedAt = new Date();
-                user.session = 0;
                 await user.save();
-                this.loggingOut(request, response, next);
+                response.send({message: "Thay đỏi mật khẩu thành công"});
             } else {
                 response.send({message: "Mật khẩu hiện tại không đúng"});
             }

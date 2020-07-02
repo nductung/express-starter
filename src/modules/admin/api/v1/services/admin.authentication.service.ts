@@ -2,14 +2,12 @@
 import * as bcrypt from 'bcrypt';
 import RegisterDto from "../dto/authentication/register.dto";
 import TokenService from "../../../../../services/token.service";
-import CookieService from "../../../../../services/cookie.service";
 import {ServiceBase} from '../../base/service.base';
 import UserAlreadyExistsException from "../../../../../exceptions/UserAlreadyExistsException";
 
 class AdminAuthenticationService extends ServiceBase {
     public user = userModel;
     public tokenService = new TokenService();
-    public cookieService = new CookieService();
 
     constructor() {
         super(userModel);
@@ -28,11 +26,8 @@ class AdminAuthenticationService extends ServiceBase {
             password: hashedPassword,
             role: 'pending'
         });
-        const tokenData = this.tokenService.createToken(user, true);
-        const cookie = this.cookieService.createCookie(tokenData);
         return {
-            cookie,
-            user,
+            user
         };
     };
 

@@ -3,7 +3,6 @@ import * as jwt from 'jsonwebtoken';
 import userModel from "../models/user.model";
 import {NextFunction, Response} from "express";
 import DataStoredInToken from "../interfaces/dataStoredInToken";
-import WrongAuthenticationSessionExpired from "../exceptions/WrongAuthenticationSessionExpired";
 import AuthenticationTokenException from "../exceptions/AuthenticationTokenException";
 import WrongCredentialsException from "../exceptions/WrongCredentialsException";
 
@@ -21,13 +20,12 @@ export default (roles: any = []) => {
 
         // authorize based on user role
         async (request: any, response: Response, next: NextFunction) => {
-            const authorization: string = request.headers['x-access-token'] || request.headers.authorization;
-            const cookies = request.cookies;
-            if (authorization || (cookies && cookies.Authorization)) {
+            const authorization: string = request.headers['x-access-token'];
+            if (authorization) {
                 try {
-                    const token: string = authorization ? authorization.slice(7, authorization.length) : cookies.Authorization;
+                    const token: string = authorization.slice(7, authorization.length);
                     const verificationResponse: any = jwt.verify(token, secret) as DataStoredInToken;
-                    request.role = verificationResponse.role;
+                    // request.role = verificationResponse.role;
                     if (roles.length && !roles.includes(request.user.role)) {
                         // user's role is not authorized
                         next(new WrongCredentialsException());
@@ -35,14 +33,11 @@ export default (roles: any = []) => {
                         const id = verificationResponse._id;
                         const user = await userModel.findById(id);
                         if (user) {
-                            if (user.session !== verificationResponse.exp) {
-                                next(new WrongAuthenticationSessionExpired());
-                            } else {
-                                const globals: any = global;
-                                globals.__user = request.user = user;
-                                // authentication and authorization successful
-                                next();
-                            }
+                            const globals: any = global;
+                            globals.__user = user;
+                            // globals.__user = request.user = user;
+                            // authentication and authorization successful
+                            next();
                         } else {
                             next(new AuthenticationTokenException());
                         }
