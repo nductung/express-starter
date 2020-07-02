@@ -1,4 +1,4 @@
-import {IsEmail, IsString} from 'class-validator';
+import {IsEmail, IsString, MinLength} from 'class-validator';
 
 class RegisterDto {
 
@@ -9,12 +9,14 @@ class RegisterDto {
     public lastName: string;
 
     @IsString()
+    @MinLength(3, {message: 'username tối thiểu 3 ký tự'})
     public username: string;
 
     @IsEmail()
     public email: string;
 
     @IsString()
+    @MinLength(6, {message: 'password tối thiểu 6 ký tự'})
     public password: string;
 
 }
