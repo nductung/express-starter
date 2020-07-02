@@ -30,21 +30,22 @@ export default (roles: any = []) => {
                     request.role = verificationResponse.role;
                     if (roles.length && !roles.includes(request.user.role)) {
                         // user's role is not authorized
-                        return response.status(401).json({message: 'Unauthorized'});
-                    }
-                    const id = verificationResponse._id;
-                    const user = await userModel.findById(id);
-                    if (user) {
-                        if (user.session !== verificationResponse.exp) {
-                            next(new WrongAuthenticationSessionExpired());
-                        } else {
-                            const globals: any = global;
-                            globals.__user = request.user = user;
-                            // authentication and authorization successful
-                            next();
-                        }
-                    } else {
                         next(new WrongAuthenticationTokenException());
+                    } else {
+                        const id = verificationResponse._id;
+                        const user = await userModel.findById(id);
+                        if (user) {
+                            if (user.session !== verificationResponse.exp) {
+                                next(new WrongAuthenticationSessionExpired());
+                            } else {
+                                const globals: any = global;
+                                globals.__user = request.user = user;
+                                // authentication and authorization successful
+                                next();
+                            }
+                        } else {
+                            next(new WrongAuthenticationTokenException());
+                        }
                     }
                 } catch (e) {
                     next(new WrongAuthenticationTokenException());
