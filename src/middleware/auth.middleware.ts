@@ -35,7 +35,7 @@ export default (roles: any = []) => {
                     const id = verificationResponse._id;
                     const user = await userModel.findById(id);
                     if (user) {
-                        if ((user.session !== undefined) && (user.session !== verificationResponse.exp)) {
+                        if (user.session !== verificationResponse.exp) {
                             next(new WrongAuthenticationSessionExpired());
                         } else {
                             const globals: any = global;
