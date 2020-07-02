@@ -1,4 +1,4 @@
-import {cleanEnv, num, port, str} from 'envalid';
+import {cleanEnv, port, str} from 'envalid';
 
 function validateEnv() {
     cleanEnv(process.env, {
@@ -7,8 +7,6 @@ function validateEnv() {
         MONGO_PATH: str(),
         MONGO_USER: str(),
         PORT: port(),
-        TOKEN_LIFE: num(),
-        REFRESH_TOKEN_LIFE: num(),
     });
 }
 

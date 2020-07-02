@@ -1,60 +1,47 @@
 import * as expressJwt from 'express-jwt';
 import * as jwt from 'jsonwebtoken';
-import authModel from "../models/auth.model";
+import userModel from "../models/user.model";
 import {NextFunction, Response} from "express";
 import DataStoredInToken from "../interfaces/dataStoredInToken";
-import JwtExpiredException from "../exceptions/JwtExpiredException";
 import WrongAuthenticationTokenException from "../exceptions/WrongAuthenticationTokenException";
 import AuthenticationTokenMissingException from "../exceptions/AuthenticationTokenMissingException";
-import Unauthorized from "../exceptions/Unauthorized";
 
 export default (roles: any = []) => {
-    const globals: any = global;
-    const secret: string = process.env.JWT_SECRET;
-
     // roles param can be a single role string (e.g. Role.User or 'User')
     // or an array of roles (e.g. [Role.Admin, Role.User] or ['Admin', 'User'])
     if (typeof roles === 'string') {
         roles = [roles];
     }
 
+    const secret: string = process.env.JWT_SECRET;
     return [
-        // authenticate JWT token and attach user to request object (request.user)
-        expressJwt({secret}),
+        // authenticate JWT token and attach user to request object (req.user)
+        expressJwt({secret, algorithms: ['HS256']}),
 
-        // authService based on user role
+        // authorize based on user role
         async (request: any, response: Response, next: NextFunction) => {
             const authorization: string = request.headers['x-access-token'] || request.headers.authorization;
             const cookies = request.cookies;
-            const now = Date.now().valueOf() / 1000;
-
-            if ((cookies && cookies.Authorization) || authorization) {
+            if (authorization || (cookies && cookies.Authorization)) {
                 try {
                     const token: string = authorization ? authorization.slice(7, authorization.length) : cookies.Authorization;
-                    // const verificationResponse = jwt.verify(cookies.Authorization, secret) as DataStoredInToken;
                     const verificationResponse: any = jwt.verify(token, secret) as DataStoredInToken;
                     request.role = verificationResponse.role;
-
-                    if (typeof verificationResponse.exp !== 'undefined' && verificationResponse.exp < now) {
-                        next(new JwtExpiredException());
-                    }
-
                     if (roles.length && !roles.includes(request.user.role)) {
                         // user's role is not authorized
-                        next(new Unauthorized());
+                        return response.status(401).json({message: 'Unauthorized'});
                     }
                     const id = verificationResponse._id;
-                    const user = await authModel.findById(id);
-
+                    const user = await userModel.findById(id);
                     if (user) {
-                        // set request user and global variable user
+                        const globals: any = global;
                         globals.user = request.user = user;
                         // authentication and authorization successful
                         next();
                     } else {
                         next(new WrongAuthenticationTokenException());
                     }
-                } catch (error) {
+                } catch (e) {
                     next(new WrongAuthenticationTokenException());
                 }
             } else {

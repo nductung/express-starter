@@ -1,2 +1,7 @@
-export const Admin = 'admin';
-export const User = 'user';
+const Role = {
+    Admin: 'admin',
+    User: 'user'
+};
+
+export default Role;
+
