@@ -25,7 +25,6 @@ export default class AdminAuthenticationController extends ControllerBase implem
         this.router
             .post(`${this.path}/authentication/register`, validationMiddleware(RegisterDto), this.registration)
             .post(`${this.path}/authentication/login`, validationMiddleware(LoginDto), this.loggingIn)
-            .post(`${this.path}/authentication/logout`, authMiddleware(Role.Admin), this.loggingOut)
             .get(`${this.path}/current`, authMiddleware(Role.Admin), this.getCurrent);
     };
 
@@ -69,15 +68,6 @@ export default class AdminAuthenticationController extends ControllerBase implem
             }
         } else {
             next(new WrongCredentialsException());
-        }
-    };
-
-    private loggingOut = async (request: Request, response: Response, next: NextFunction) => {
-        try {
-            response.setHeader('Set-Cookie', ['Authorization=;Max-age=0']);
-            response.send({message: "Success"});
-        } catch (e) {
-            next(e)
         }
     };
 
