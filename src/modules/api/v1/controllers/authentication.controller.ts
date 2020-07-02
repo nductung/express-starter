@@ -89,8 +89,11 @@ export default class AuthenticationController extends ControllerBase implements 
         }
     };
 
-    private loggingOut = (request: Request, response: Response, next: NextFunction) => {
+    private loggingOut = async (request: Request, response: Response, next: NextFunction) => {
         try {
+            await userModel.findByIdAndUpdate(this.getProfile()._id, {
+                session: 0
+            });
             response.setHeader('Set-Cookie', ['Authorization=;Max-age=0']);
             // response.send(200);
         } catch (e) {
