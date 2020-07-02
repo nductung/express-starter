@@ -10,8 +10,8 @@ import validationMiddleware from "../../../../middleware/validation.middleware";
 import userModel from "../../../../models/user.model";
 import Role from "../../../../models/role.model";
 import Controller from '../../../../interfaces/controller.interface';
-import userTransformer from "../transformers/user.tranformer";
 import ChangePasswordDto from "../dto/authentication/changePassword.dto";
+import userTransformer from "../transformers/user.tranformer";
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public tokenService = new TokenService();
@@ -34,10 +34,11 @@ export default class AuthenticationController extends ControllerBase implements 
     private registration = async (request: Request, response: Response, next: NextFunction) => {
         const userData: RegisterDto = request.body;
         try {
-            const {
-                user
-            } = await this.authenticationService.register(userData);
-            response.send(userTransformer(user));
+            const user = await this.authenticationService.register(userData);
+            response.send({
+                data: userTransformer(user),
+                message: "Bạn đã đăng ký thành công"
+            });
         } catch (error) {
             next(error);
         }
@@ -56,7 +57,7 @@ export default class AuthenticationController extends ControllerBase implements 
                 const refreshTokenData = this.tokenService.createToken(user, false);
                 const valueToken = {
                     accessToken: tokenData.token,
-                    // refreshToken: refreshTokenData.token,
+                    refreshToken: refreshTokenData.token,
                 };
 
                 response.send({
@@ -76,9 +77,7 @@ export default class AuthenticationController extends ControllerBase implements 
 
     private getCurrent = async (request: Request, response: Response, next: NextFunction) => {
         try {
-            const id = this.getProfile()._id;
-            const user = await userModel.findById(id);
-
+            const user = await userModel.findById(this.getProfile()._id);
             response.send({data: {...userTransformer(user.toJSON()),}, message: "Success"});
         } catch (e) {
             next(e);
@@ -93,8 +92,7 @@ export default class AuthenticationController extends ControllerBase implements 
                 return response.send({message: `Mật khẩu mới và mật khẩu xác nhận không giống nhau`});
             }
 
-            const id = this.getProfile()._id;
-            const user = await userModel.findById(id);
+            const user = await userModel.findById(this.getProfile()._id);
             const match = await bcrypt.compare(request.body.currentPassword, user.password);
 
             if (match) {

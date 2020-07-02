@@ -6,8 +6,12 @@
   "dependencies": {
     "@types/bcrypt": "^3.0.0",
     "@types/cors": "^2.8.6",
+    "@types/express-jwt": "^0.0.42",
     "@types/mongoose": "^5.7.21",
     "@types/morgan": "^1.9.0",
+    "@types/passport": "^1.0.3",
+    "@types/passport-google-oauth20": "^2.0.3",
+    "@types/request": "^2.48.5",
     "bcrypt": "^3.0.8",
     "body-parser": "^1.19.0",
     "class-transformer": "^0.2.3",
@@ -19,12 +23,12 @@
     "envalid": "^6.0.1",
     "express": "^4.17.1",
     "express-jwt": "^5.3.3",
-    "@types/express-jwt": "^0.0.42",
     "jsonwebtoken": "^8.5.1",
     "moment-timezone": "^0.5.31",
     "mongoose": "^5.8.11",
     "morgan": "^1.10.0",
-    "@types/request": "^2.48.5"
+    "passport": "^0.4.1",
+    "passport-google-oauth20": "^2.0.0"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.2",

@@ -1,13 +1,11 @@
 ﻿import userModel from "../../../../../models/user.model";
 import * as bcrypt from 'bcrypt';
-import RegisterDto from "../dto/authentication/register.dto";
-import TokenService from "../../../../../services/token.service";
 import {ServiceBase} from '../../base/service.base';
 import UserAlreadyExistsException from "../../../../../exceptions/UserAlreadyExistsException";
+import RegisterDto from "../dto/authentication/register.dto";
 
 class AdminAuthenticationService extends ServiceBase {
     public user = userModel;
-    public tokenService = new TokenService();
 
     constructor() {
         super(userModel);
@@ -21,14 +19,11 @@ class AdminAuthenticationService extends ServiceBase {
         }
         const hashedPassword = await bcrypt.hash(userData.password, 10);
         // @ts-ignore
-        const user = await this.user.create({
+        return await this.user.create({
             ...userData,
             password: hashedPassword,
             role: 'pending'
         });
-        return {
-            user
-        };
     };
 
 }
