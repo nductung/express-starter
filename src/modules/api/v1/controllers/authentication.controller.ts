@@ -33,22 +33,47 @@ export default class AuthenticationController extends ControllerBase implements 
             .get(`${this.path}/authentication/google`, passport.authenticate('google', {scope: ['profile', 'email']}))
             .get(`${this.path}/authentication/google/callback`, passport.authenticate('google', {failureRedirect: `/failed`}),
                 async (request: any, response: Response) => {
-                    console.log(request.user);
-                    const dataUser = request.user._json;
-                    if (await userModel.findOne({email: dataUser.email})) {
-                        console.log('da ton tai')
+                    const data = request.user._json;
+                    const user = await userModel.findOne({email: data.email});
+                    if (user) {
+                        response.send({
+                            data: {
+                                ...userTransformer(user.toJSON()),
+                                ...this.tokenService.createValueToken(user)
+                            },
+                            message: "Success"
+                        })
                     } else {
-                        console.log('chua ton tai');
-                        const user = new userModel();
-                        user.firstName = dataUser.family_name;
-                        user.lastName = dataUser.given_name;
-                        user.username = dataUser.email.replace(/@.*$/, "");
-                        user.email = dataUser.email;
-                        user.picture = dataUser.picture;
-                        console.log(dataUser.email.match(/^([^@]*)@/));
-                        console.log(user);
+                        const userData = new userModel();
+                        userData.firstName = data.family_name;
+                        userData.lastName = data.given_name;
+                        userData.email = data.email;
+                        userData.picture = data.picture;
+
+                        let username = data.email.replace(/@.*$/, "");
+                        if (await userModel.findOne({username})) {
+                            let loop = true;
+                            do {
+                                const randomNumber: any = Math.floor(Math.random() * 999 - 100 + 1) + 100;
+                                username += randomNumber;
+                                if (!await userModel.findOne({username})) {
+                                    loop = false;
+                                }
+                            } while (loop)
+                        }
+                        userData.username = username;
+
+                        userData.password = await bcrypt.hash('12345678', 10);
+                        await userData.save();
+
+                        response.send({
+                            data: {
+                                ...userTransformer(userData.toJSON()),
+                                ...this.tokenService.createValueToken(user)
+                            },
+                            message: "Success"
+                        });
                     }
-                    response.end();
                 }
             )
     };

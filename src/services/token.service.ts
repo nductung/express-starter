@@ -16,6 +16,15 @@ class TokenService {
         };
     }
 
+    public createValueToken(user: any) {
+        const tokenData = this.createToken(user, true);
+        const refreshTokenData = this.createToken(user, false);
+        return {
+            accessToken: tokenData.token,
+            refreshToken: refreshTokenData.token,
+        }
+    }
+
 }
 
 export default TokenService;
