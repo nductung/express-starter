@@ -50,13 +50,7 @@ class App {
         });
     }
 
-    // public getServer() {
-    //     return this.app;
-    // }
-
     private initializeMiddlewares() {
-        // this.app.use(bodyParser.json());
-        // this.app.use(cookieParser());
         this.app.use(bodyParser.json({limit: '10mb'}));
         this.app.use(bodyParser.urlencoded({limit: '10mb', extended: true}));
         this.app.use(cors({credentials: true, origin: true}));
