@@ -1,3 +1,5 @@
+// tslint:disable-next-line:no-var-requires
+require('./services/passport.service');
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
@@ -7,6 +9,8 @@ import * as morgan from 'morgan';
 import Controller from './interfaces/controller.interface';
 import errorMiddleware from './middleware/error.middleware';
 import * as path from "path";
+import * as passport from "passport";
+import cookieSession = require("cookie-session");
 
 class App {
 
@@ -53,6 +57,16 @@ class App {
     private initializeMiddlewares() {
         this.app.use(bodyParser.json({limit: '10mb'}));
         this.app.use(bodyParser.urlencoded({limit: '10mb', extended: true}));
+
+        // For an actual app you should configure this with an experation time, better keys, proxy and secure
+        this.app.use(cookieSession({
+            name: 'tuto-session',
+            keys: ['key1', 'key2']
+        }));
+        // Initializes passport and passport sessions
+        this.app.use(passport.initialize());
+        this.app.use(passport.session());
+
         this.app.use(cors({credentials: true, origin: true}));
         this.app.use(cookieParser());
         this.app.use(express.static(path.join(process.cwd(), 'public'), {maxAge: '7d'}));

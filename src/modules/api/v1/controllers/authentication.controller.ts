@@ -12,6 +12,7 @@ import Role from "../../../../models/role.model";
 import Controller from '../../../../interfaces/controller.interface';
 import ChangePasswordDto from "../dto/authentication/changePassword.dto";
 import userTransformer from "../transformers/user.tranformer";
+import * as passport from "passport";
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public tokenService = new TokenService();
@@ -29,6 +30,27 @@ export default class AuthenticationController extends ControllerBase implements 
             .get(`${this.path}/current`, authMiddleware(Role.User), this.getCurrent)
             .post(`${this.path}/authentication/change-password`, authMiddleware(Role.User),
                 validationMiddleware(ChangePasswordDto), this.changePassword)
+            .get(`${this.path}/authentication/google`, passport.authenticate('google', {scope: ['profile', 'email']}))
+            .get(`${this.path}/authentication/google/callback`, passport.authenticate('google', {failureRedirect: `/failed`}),
+                async (request: any, response: Response) => {
+                    console.log(request.user);
+                    const dataUser = request.user._json;
+                    if (await userModel.findOne({email: dataUser.email})) {
+                        console.log('da ton tai')
+                    } else {
+                        console.log('chua ton tai');
+                        const user = new userModel();
+                        user.firstName = dataUser.family_name;
+                        user.lastName = dataUser.given_name;
+                        user.username = dataUser.email.replace(/@.*$/, "");
+                        user.email = dataUser.email;
+                        user.picture = dataUser.picture;
+                        console.log(dataUser.email.match(/^([^@]*)@/));
+                        console.log(user);
+                    }
+                    response.end();
+                }
+            )
     };
 
     private registration = async (request: Request, response: Response, next: NextFunction) => {

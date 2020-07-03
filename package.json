@@ -24,7 +24,13 @@
     "jsonwebtoken": "^8.5.1",
     "moment-timezone": "^0.5.31",
     "mongoose": "^5.8.11",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "passport": "^0.4.1",
+    "@types/passport": "^1.0.3",
+    "passport-google-oauth20": "^2.0.0",
+    "@types/passport-google-oauth20": "^2.0.3",
+    "cookie-session": "^1.4.0",
+    "@types/cookie-session": "^2.0.41"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.2",
