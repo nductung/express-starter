@@ -31,52 +31,57 @@ export default class AuthenticationController extends ControllerBase implements 
             .post(`${this.path}/authentication/change-password`, authMiddleware(Role.User),
                 validationMiddleware(ChangePasswordDto), this.changePassword)
             .get(`${this.path}/authentication/google`, passport.authenticate('google', {scope: ['profile', 'email']}))
-            .get(`${this.path}/authentication/google/callback`, passport.authenticate('google', {failureRedirect: `/failed`}),
-                async (request: any, response: Response) => {
-                    const data = request.user._json;
-                    const user = await userModel.findOne({email: data.email});
-                    if (user) {
-                        response.send({
-                            data: {
-                                ...userTransformer(user.toJSON()),
-                                ...this.tokenService.createValueToken(user)
-                            },
-                            message: "Success"
-                        })
-                    } else {
-                        const userData = new userModel();
-                        userData.firstName = data.given_name;
-                        userData.lastName = data.family_name;
-                        userData.email = data.email;
-                        userData.picture = data.picture;
+            .get(`${this.path}/authentication/google/callback`,
+                passport.authenticate('google', {failureRedirect: `/`}), this.loginWithGoogle)
+    };
 
-                        let username = data.email.replace(/@.*$/, "");
-                        if (await userModel.findOne({username})) {
-                            let loop = true;
-                            do {
-                                let random: any = Math.floor(Math.random() * 999 - 100 + 1) + 100;
-                                random = username + random;
-                                if (!await userModel.findOne({random})) {
-                                    loop = false;
-                                    username = random;
-                                }
-                            } while (loop)
+    private loginWithGoogle = async (request: any, response: Response, next: NextFunction) => {
+        try {
+            const data = request.user._json;
+            const user = await userModel.findOne({email: data.email});
+            if (user) {
+                response.send({
+                    data: {
+                        ...userTransformer(user.toJSON()),
+                        ...this.tokenService.createValueToken(user)
+                    },
+                    message: "Success"
+                })
+            } else {
+                const userData = new userModel();
+                userData.firstName = data.given_name;
+                userData.lastName = data.family_name;
+                userData.email = data.email;
+                userData.picture = data.picture;
+
+                let username = data.email.replace(/@.*$/, "");
+                if (await userModel.findOne({username})) {
+                    let loop = true;
+                    do {
+                        let random: any = Math.floor(Math.random() * 999 - 100 + 1) + 100;
+                        random = username + random;
+                        if (!await userModel.findOne({random})) {
+                            loop = false;
+                            username = random;
                         }
-                        userData.username = username;
-
-                        userData.password = await bcrypt.hash('12345678', 10);
-                        await userData.save();
-
-                        response.send({
-                            data: {
-                                ...userTransformer(userData.toJSON()),
-                                ...this.tokenService.createValueToken(userData)
-                            },
-                            message: "Success"
-                        });
-                    }
+                    } while (loop)
                 }
-            )
+                userData.username = username;
+
+                userData.password = await bcrypt.hash('12345678', 10);
+                await userData.save();
+
+                response.send({
+                    data: {
+                        ...userTransformer(userData.toJSON()),
+                        ...this.tokenService.createValueToken(userData)
+                    },
+                    message: "Success"
+                });
+            }
+        } catch (e) {
+            next(e)
+        }
     };
 
     private registration = async (request: Request, response: Response, next: NextFunction) => {
