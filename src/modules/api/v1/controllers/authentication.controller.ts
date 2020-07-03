@@ -45,8 +45,8 @@ export default class AuthenticationController extends ControllerBase implements 
                         })
                     } else {
                         const userData = new userModel();
-                        userData.firstName = data.family_name;
-                        userData.lastName = data.given_name;
+                        userData.firstName = data.given_name;
+                        userData.lastName = data.family_name;
                         userData.email = data.email;
                         userData.picture = data.picture;
 
@@ -54,10 +54,11 @@ export default class AuthenticationController extends ControllerBase implements 
                         if (await userModel.findOne({username})) {
                             let loop = true;
                             do {
-                                const randomNumber: any = Math.floor(Math.random() * 999 - 100 + 1) + 100;
-                                username += randomNumber;
-                                if (!await userModel.findOne({username})) {
+                                let random: any = Math.floor(Math.random() * 999 - 100 + 1) + 100;
+                                random = username + random;
+                                if (!await userModel.findOne({random})) {
                                     loop = false;
+                                    username = random;
                                 }
                             } while (loop)
                         }
@@ -69,7 +70,7 @@ export default class AuthenticationController extends ControllerBase implements 
                         response.send({
                             data: {
                                 ...userTransformer(userData.toJSON()),
-                                ...this.tokenService.createValueToken(user)
+                                ...this.tokenService.createValueToken(userData)
                             },
                             message: "Success"
                         });
