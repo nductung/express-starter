@@ -21,27 +21,32 @@ export default (roles: any = []) => {
         // authorize based on user role
         async (request: any, response: Response, next: NextFunction) => {
 
-            const authorization: string = request.headers.authorization;
-            if (authorization) {
-                const token: string = authorization.slice(7, authorization.length);
-                const verificationResponse = jwt.verify(token, secret) as DataStoredInToken;
-                if (roles.length && !roles.includes(verificationResponse.role)) {
-                    // user's role is not authorized
-                    next(new AccessDeniedException());
-                } else {
-                    const user = await userModel.findById(verificationResponse._id);
-                    if (user) {
-                        const globals: any = global;
-                        globals.__user = request.user = user;
-                        // authentication and authorization successful
-                        next();
+            try {
+                const authorization: string = request.headers.authorization;
+                if (authorization) {
+                    const token: string = authorization.slice(7, authorization.length);
+                    const verificationResponse = jwt.verify(token, secret) as DataStoredInToken;
+                    if (roles.length && !roles.includes(verificationResponse.role)) {
+                        // user's role is not authorized
+                        next(new AccessDeniedException());
                     } else {
-                        next(new AuthenticationTokenException());
+                        const user = await userModel.findById(verificationResponse._id);
+                        if (user) {
+                            const globals: any = global;
+                            globals.__user = request.user = user;
+                            // authentication and authorization successful
+                            next();
+                        } else {
+                            next(new AuthenticationTokenException());
+                        }
                     }
+                } else {
+                    next(new AuthenticationTokenException());
                 }
-            } else {
-                next(new AuthenticationTokenException());
+            } catch (e) {
+                next(e)
             }
+
         }
     ];
 }
