@@ -11,7 +11,9 @@ import * as passport from "passport";
 import cookieSession = require("cookie-session");
 
 // tslint:disable-next-line:no-var-requires
-require('./services/passport.service');
+require('./services/passportGoogle.service');
+// tslint:disable-next-line:no-var-requires
+require('./services/passportFacebook.service');
 
 class App {
 

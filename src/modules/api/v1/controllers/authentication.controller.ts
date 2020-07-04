@@ -33,7 +33,16 @@ export default class AuthenticationController extends ControllerBase implements 
             .get(`${this.path}/authentication/google`, passport.authenticate('google', {scope: ['profile', 'email']}))
             .get(`${this.path}/authentication/google/callback`,
                 passport.authenticate('google', {failureRedirect: `/`}), this.loginWithGoogle)
+            .get(`${this.path}/authentication/facebook`, passport.authenticate('facebook', {scope: 'email'}))
+            .get(`${this.path}/authentication/facebook/callback`,
+                passport.authenticate('facebook', {failureRedirect: '/'}), this.loginWithFB)
     };
+
+    private loginWithFB = async (request: any, response: Response, next: NextFunction) => {
+        console.log(request.user);
+        response.send({data: request.user})
+        response.end();
+    }
 
     private loginWithGoogle = async (request: any, response: Response, next: NextFunction) => {
         try {
