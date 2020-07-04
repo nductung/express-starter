@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
         password: {type: String, required: true},
         role: {type: String, default: 'user'},
         picture: {type: String, default: undefined},
-        ref_facebook: {type: String, default: undefined},
+        ref_facebook: {type: Number, default: undefined},
         createdAt: {type: Date, default: Date.now},
         updatedAt: {type: Date, default: Date.now}
     }, {
