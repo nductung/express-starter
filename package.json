@@ -57,7 +57,8 @@
     "dev": "nodemon --exec ts-node src/server.ts",
     "prod": "nodemon --exec NODE_ENV=prod env-cmd -f .env.prod ts-node src/server.ts",
     "lint": "tslint -p tsconfig.json -c tslint.json",
-    "test": "jest"
+    "test": "jest",
+    "start": "nodemon --exec ts-node src/server.ts"
   },
   "author": "Marcin Wanago",
   "license": "MIT",
