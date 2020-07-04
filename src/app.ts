@@ -1,5 +1,3 @@
-// tslint:disable-next-line:no-var-requires
-require('./services/passport.service');
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
@@ -11,6 +9,9 @@ import errorMiddleware from './middleware/error.middleware';
 import * as path from "path";
 import * as passport from "passport";
 import cookieSession = require("cookie-session");
+
+// tslint:disable-next-line:no-var-requires
+require('./services/passport.service');
 
 class App {
 
