@@ -4,7 +4,8 @@ import {Strategy} from "passport-facebook";
 passport.use(new Strategy({
         clientID: `${process.env.FACEBOOK_CLIENT_ID}`,
         clientSecret: `${process.env.FACEBOOK_CLIENT_SECRET}`,
-        callbackURL: "http://localhost:4000/api/v1/authentication/facebook/callback"
+        callbackURL: "http://localhost:4000/api/v1/authentication/facebook/callback",
+        profileFields: ['id', 'first_name', 'last_name', 'photos', 'email']
     },
     (accessToken, refreshToken, profile, cb) => {
         // In this example, the user's Facebook profile is supplied as the user

@@ -35,13 +35,47 @@ export default class AuthenticationController extends ControllerBase implements 
                 passport.authenticate('google', {failureRedirect: `/`}), this.loginWithGoogle)
             .get(`${this.path}/authentication/facebook`, passport.authenticate('facebook', {scope: 'email'}))
             .get(`${this.path}/authentication/facebook/callback`,
-                passport.authenticate('facebook', {failureRedirect: '/'}), this.loginWithFB)
+                passport.authenticate('facebook', {failureRedirect: '/'}), this.loginWithFacebook)
     };
 
-    private loginWithFB = async (request: any, response: Response, next: NextFunction) => {
-        console.log(request.user);
-        response.send({data: request.user})
-        response.end();
+    private loginWithFacebook = async (request: any, response: Response, next: NextFunction) => {
+        try {
+            const data = request.user._json;
+            const user = await userModel.findOne({ref_facebook: data.id});
+            if (user) {
+                response.send({
+                    data: {
+                        ...userTransformer(user.toJSON()),
+                        ...this.tokenService.createValueToken(user)
+                    },
+                    message: "Success"
+                })
+            } else {
+                const userData = new userModel();
+                userData.ref_facebook = data.id;
+                userData.firstName = data.first_name;
+                userData.lastName = data.last_name;
+                userData.email = await userModel.findOne({email: data.email})
+                    ? `no-email-${Math.floor(Math.random() * 999999 - 100000 + 1) + 100000}@email.vn`
+                    : data.email;
+                userData.picture = data.picture.data.url;
+
+                userData.username = await this.authenticationService.usernameGenerator(data.email);
+
+                userData.password = await bcrypt.hash('12345678', 10);
+                await userData.save();
+
+                response.send({
+                    data: {
+                        ...userTransformer(userData.toJSON()),
+                        ...this.tokenService.createValueToken(userData)
+                    },
+                    message: "Success"
+                });
+            }
+        } catch (e) {
+            next(e)
+        }
     }
 
     private loginWithGoogle = async (request: any, response: Response, next: NextFunction) => {
@@ -63,19 +97,7 @@ export default class AuthenticationController extends ControllerBase implements 
                 userData.email = data.email;
                 userData.picture = data.picture;
 
-                let username = data.email.replace(/@.*$/, "");
-                if (await userModel.findOne({username})) {
-                    let loop = true;
-                    do {
-                        let random: any = Math.floor(Math.random() * 999 - 100 + 1) + 100;
-                        random = username + random;
-                        if (!await userModel.findOne({random})) {
-                            loop = false;
-                            username = random;
-                        }
-                    } while (loop)
-                }
-                userData.username = username;
+                userData.username = await this.authenticationService.usernameGenerator(data.email);
 
                 userData.password = await bcrypt.hash('12345678', 10);
                 await userData.save();

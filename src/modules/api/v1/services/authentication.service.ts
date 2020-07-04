@@ -25,6 +25,24 @@ class AuthenticationService extends ServiceBase {
         })
     };
 
+    public usernameGenerator = async (str: string) => {
+        let username = str.replace(/@.*$/, "");
+        if (await userModel.findOne({username})) {
+            let loop = true;
+            do {
+                let random: any = Math.floor(Math.random() * 999 - 100 + 1) + 100;
+                random = username + random;
+                if (!await userModel.findOne({username: random})) {
+                    loop = false;
+                    username = random;
+                    return username
+                }
+            } while (loop)
+        } else {
+            return username
+        }
+    }
+
 }
 
 export default AuthenticationService;

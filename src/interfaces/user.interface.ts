@@ -8,6 +8,7 @@ interface InterfaceModelUser {
     password: string;
     role: string,
     picture: string,
+    ref_facebook: string,
     createdAt: Date,
     updatedAt: Date,
 }
