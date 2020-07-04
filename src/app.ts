@@ -56,21 +56,20 @@ class App {
     }
 
     private initializeMiddlewares() {
-        this.app.use(bodyParser.json({limit: '10mb'}));
-        this.app.use(bodyParser.urlencoded({limit: '10mb', extended: true}));
-
         // For an actual app you should configure this with an experation time, better keys, proxy and secure
         this.app.use(cookieSession({
-            name: 'tuto-session',
+            name: 'session',
             keys: ['key1', 'key2']
         }));
-        // Initializes passport and passport sessions
+        // Initialize Passport and restore authentication state, if any, from the
+        // session.
         this.app.use(passport.initialize());
         this.app.use(passport.session());
-
+        this.app.use(bodyParser.json());
+        this.app.use(bodyParser.urlencoded({extended: true}));
         this.app.use(cors({credentials: true, origin: true}));
         this.app.use(cookieParser());
-        this.app.use(express.static(path.join(process.cwd(), 'public'), {maxAge: '7d'}));
+        this.app.use(express.static(path.join(process.cwd(), 'public')));
         this.app.use(morgan('dev'));
     }
 
