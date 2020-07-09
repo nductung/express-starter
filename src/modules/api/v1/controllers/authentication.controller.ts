@@ -14,6 +14,8 @@ import ChangePasswordDto from "../dto/authentication/changePassword.dto";
 import userTransformer from "../transformers/user.tranformer";
 import * as passport from "passport";
 import CurrentPasswordIncorrectException from "../../../../exceptions/CurrentPasswordIncorrectException";
+import SendEmailService from "../../../../services/sendMail.service";
+import CannotSendEmailException from "../../../../exceptions/CannotSendEmail.exception";
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public tokenService = new TokenService();
@@ -123,15 +125,31 @@ export default class AuthenticationController extends ControllerBase implements 
     };
 
     private registration = async (request: Request, response: Response, next: NextFunction) => {
-        const userData: RegisterDto = request.body;
         try {
+            const userData: RegisterDto = request.body;
             const user = await this.authenticationService.register(userData);
-            response.send({
-                data: userTransformer(user),
-                message: "Bạn đã đăng ký thành công",
-                status: 200,
-                success: true,
-            });
+            if (user) {
+                const token = '123';
+                const html = `
+                        <p>Chào bạn <strong>${userData.username}</strong>,</p>
+                        <p>Bạn đã đăng kí tài khoản của bạn trên hệ thống.</p>
+                        <p>Mã xác nhận của bạn là: ${token}</p>
+                        <p>Hãy điền mã xác nhận để hoàn tất quá trình này.</p>
+                        <p>Trân trọng,</p>
+                        <p>BQT Team.</p>
+                    `;
+                const sendEmail = await SendEmailService(userData.email, html, `[ ] Mã code xác thực tài khoản ${userData.username}`);
+                if (sendEmail) {
+                    response.send({
+                        data: userTransformer(user),
+                        message: "Bạn đã đăng ký thành công",
+                        status: 200,
+                        success: true,
+                    });
+                } else {
+                    next(new CannotSendEmailException())
+                }
+            }
         } catch (error) {
             next(error);
         }
