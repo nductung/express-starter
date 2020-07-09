@@ -129,7 +129,7 @@ export default class AuthenticationController extends ControllerBase implements 
             const userData: RegisterDto = request.body;
             const user = await this.authenticationService.register(userData);
             if (user) {
-                const token = '123';
+                const token = Math.floor(Math.random() * 999999 - 100000 + 1) + 100000;
                 const html = `
                         <p>Chào bạn <strong>${userData.username}</strong>,</p>
                         <p>Bạn đã đăng kí tài khoản của bạn trên hệ thống.</p>

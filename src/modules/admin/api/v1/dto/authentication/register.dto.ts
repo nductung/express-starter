@@ -9,14 +9,14 @@ class RegisterDto {
     public lastName: string;
 
     @IsString()
-    @MinLength(3, {message: 'username tối thiểu 3 ký tự'})
+    @MinLength(5, {message: 'username phải có tối thiểu 5 ký tự'})
     public username: string;
 
     @IsEmail()
     public email: string;
 
     @IsString()
-    @MinLength(6, {message: 'password tối thiểu 6 ký tự'})
+    @MinLength(8, {message: 'Mật khẩu phải có tối thiểu 8 ký tự'})
     public password: string;
 
 }
