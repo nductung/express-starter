@@ -12,6 +12,7 @@ import LoginDto from "../dto/authentication/login.dto";
 import userTransformer from "../transformers/user.tranformer";
 import ChangePasswordDto from "../dto/authentication/changePassword.dto";
 import RegisterDto from "../dto/authentication/register.dto";
+import CurrentPasswordIncorrectException from "../../../../../exceptions/CurrentPasswordIncorrectException";
 
 export default class AdminAuthenticationController extends ControllerBase implements Controller {
     public tokenService = new TokenService();
@@ -86,12 +87,6 @@ export default class AdminAuthenticationController extends ControllerBase implem
 
     private changePassword = async (request: Request, response: Response, next: NextFunction) => {
         try {
-            if (request.body.currentPassword === request.body.newPassword) {
-                return response.send({message: `Mật khẩu mới phải khác mật khẩu hiện tại`});
-            } else if (request.body.newPassword !== request.body.confirmPassword) {
-                return response.send({message: `Mật khẩu mới và mật khẩu xác nhận không giống nhau`});
-            }
-
             const user = await userModel.findById(this.getProfile()._id);
             const match = await bcrypt.compare(request.body.currentPassword, user.password);
 
@@ -101,7 +96,7 @@ export default class AdminAuthenticationController extends ControllerBase implem
                 await user.save();
                 response.send({message: "Thay đỏi mật khẩu thành công"});
             } else {
-                response.send({message: "Mật khẩu hiện tại không đúng"});
+                next(new CurrentPasswordIncorrectException());
             }
 
         } catch (e) {
