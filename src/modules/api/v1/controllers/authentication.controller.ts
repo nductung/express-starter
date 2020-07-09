@@ -14,8 +14,6 @@ import ChangePasswordDto from "../dto/authentication/changePassword.dto";
 import userTransformer from "../transformers/user.tranformer";
 import * as passport from "passport";
 import CurrentPasswordIncorrectException from "../../../../exceptions/CurrentPasswordIncorrectException";
-import SendEmailService from "../../../../services/sendMail.service";
-import CannotSendEmailException from "../../../../exceptions/CannotSendEmail.exception";
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public tokenService = new TokenService();
@@ -138,17 +136,18 @@ export default class AuthenticationController extends ControllerBase implements 
                         <p>Trân trọng,</p>
                         <p>BQT Team.</p>
                     `;
-                const sendEmail = await SendEmailService(userData.email, html, `[ ] Mã code xác thực tài khoản ${userData.username}`);
-                if (sendEmail) {
+                // tslint:disable-next-line:max-line-length
+                // const sendEmail = await SendEmailService(userData.email, html, `[ ] Mã code xác thực tài khoản ${userData.username}`);
+                // if (sendEmail) {
                     response.send({
                         data: userTransformer(user),
                         message: "Bạn đã đăng ký thành công",
                         status: 200,
                         success: true,
                     });
-                } else {
-                    next(new CannotSendEmailException())
-                }
+                // } else {
+                //     next(new CannotSendEmailException())
+                // }
             }
         } catch (error) {
             next(error);
