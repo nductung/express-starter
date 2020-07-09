@@ -7,6 +7,7 @@ function errorMiddleware(error: HttpException, request: Request, response: Respo
     response.status(status).send({
         message,
         status,
+        success: false,
     });
 }
 

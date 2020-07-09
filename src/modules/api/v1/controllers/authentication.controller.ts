@@ -49,7 +49,9 @@ export default class AuthenticationController extends ControllerBase implements 
                         ...userTransformer(user.toJSON()),
                         ...this.tokenService.createValueToken(user)
                     },
-                    message: "Success"
+                    message: "Đăng nhập thành công",
+                    status: 200,
+                    success: true,
                 })
             } else {
                 const userData = new userModel();
@@ -71,7 +73,9 @@ export default class AuthenticationController extends ControllerBase implements 
                         ...userTransformer(userData.toJSON()),
                         ...this.tokenService.createValueToken(userData)
                     },
-                    message: "Success"
+                    message: "Đăng nhập thành công",
+                    status: 200,
+                    success: true,
                 });
             }
         } catch (e) {
@@ -89,7 +93,9 @@ export default class AuthenticationController extends ControllerBase implements 
                         ...userTransformer(user.toJSON()),
                         ...this.tokenService.createValueToken(user)
                     },
-                    message: "Success"
+                    message: "Đăng nhập thành công",
+                    status: 200,
+                    success: true,
                 })
             } else {
                 const userData = new userModel();
@@ -108,7 +114,9 @@ export default class AuthenticationController extends ControllerBase implements 
                         ...userTransformer(userData.toJSON()),
                         ...this.tokenService.createValueToken(userData)
                     },
-                    message: "Success"
+                    message: "Đăng nhập thành công",
+                    status: 200,
+                    success: true,
                 });
             }
         } catch (e) {
@@ -122,7 +130,9 @@ export default class AuthenticationController extends ControllerBase implements 
             const user = await this.authenticationService.register(userData);
             response.send({
                 data: userTransformer(user),
-                message: "Bạn đã đăng ký thành công"
+                message: "Bạn đã đăng ký thành công",
+                status: 200,
+                success: true,
             });
         } catch (error) {
             next(error);
@@ -150,7 +160,9 @@ export default class AuthenticationController extends ControllerBase implements 
                         ...userTransformer(user.toJSON()),
                         ...valueToken
                     },
-                    message: "Success"
+                    message: "Đăng nhập thành công",
+                    status: 200,
+                    success: true,
                 });
             } else {
                 next(new WrongCredentialsException());
@@ -163,7 +175,12 @@ export default class AuthenticationController extends ControllerBase implements 
     private getCurrent = async (request: Request, response: Response, next: NextFunction) => {
         try {
             const user = await userModel.findById(this.getProfile()._id);
-            response.send({data: {...userTransformer(user.toJSON()),}, message: "Success"});
+            response.send({
+                data: {...userTransformer(user.toJSON()),},
+                message: "",
+                status: 200,
+                success: true,
+            });
         } catch (e) {
             next(e);
         }
@@ -178,7 +195,12 @@ export default class AuthenticationController extends ControllerBase implements 
                 user.password = await bcrypt.hash(request.body.newPassword, 10);
                 user.updatedAt = new Date();
                 await user.save();
-                response.send({message: "Thay đỏi mật khẩu thành công"});
+                response.send({
+                    data: {},
+                    message: "Thay đỏi mật khẩu thành công",
+                    status: 200,
+                    success: true,
+                });
             } else {
                 next(new CurrentPasswordIncorrectException());
             }
