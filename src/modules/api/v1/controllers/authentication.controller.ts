@@ -55,17 +55,16 @@ export default class AuthenticationController extends ControllerBase implements 
                 })
             } else {
                 const userData = new userModel();
-                userData.ref_facebook = data.id;
                 userData.firstName = data.first_name;
                 userData.lastName = data.last_name;
-                userData.email = await userModel.findOne({email: data.email})
-                    ? `no-email-${Math.floor(Math.random() * 999999 - 100000 + 1) + 100000}@email.vn`
-                    : data.email;
-                userData.picture = data.picture.data.url;
-
                 userData.username = await this.authenticationService.usernameGenerator(data.email);
+                userData.picture = data.picture.data.url;
+                userData.password = await bcrypt.hash('12356890', 10);
+                userData.email = await userModel.findOne({email: data.email})
+                    ? `no-email-${Math.floor(Math.random() * 999999 - 100000 + 1) + 100000}@email.com`
+                    : data.email;
+                userData.ref_facebook = data.id;
 
-                userData.password = await bcrypt.hash('12345678', 10);
                 await userData.save();
 
                 response.send({
@@ -101,12 +100,11 @@ export default class AuthenticationController extends ControllerBase implements 
                 const userData = new userModel();
                 userData.firstName = data.given_name;
                 userData.lastName = data.family_name;
-                userData.email = data.email;
-                userData.picture = data.picture;
-
                 userData.username = await this.authenticationService.usernameGenerator(data.email);
+                userData.picture = data.picture;
+                userData.password = await bcrypt.hash('12356890', 10);
+                userData.email = data.email;
 
-                userData.password = await bcrypt.hash('12345678', 10);
                 await userData.save();
 
                 response.send({
