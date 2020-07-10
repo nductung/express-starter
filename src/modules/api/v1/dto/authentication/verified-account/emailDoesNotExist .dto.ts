@@ -5,7 +5,7 @@ import {
     ValidatorConstraint,
     ValidatorConstraintInterface
 } from "class-validator";
-import userModel from "../../../../../models/user.model";
+import userModel from "../../../../../../models/user.model";
 
 @ValidatorConstraint({async: true})
 export class EmailDoesNotExistConstraint implements ValidatorConstraintInterface {

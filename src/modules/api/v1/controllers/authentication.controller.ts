@@ -10,7 +10,7 @@ import validationMiddleware from "../../../../middleware/validation.middleware";
 import userModel from "../../../../models/user.model";
 import Role from "../../../../models/role.model";
 import Controller from '../../../../interfaces/controller.interface';
-import ChangePasswordDto from "../dto/authentication/changePassword.dto";
+import ChangePasswordDto from "../dto/authentication/change-password/changePassword.dto";
 import userTransformer from "../transformers/user.tranformer";
 import * as passport from "passport";
 import CurrentPasswordIncorrectException from "../../../../exceptions/CurrentPasswordIncorrectException";
@@ -19,7 +19,7 @@ import CannotSendEmailException from "../../../../exceptions/CannotSendEmail.exc
 import * as jwt from "jsonwebtoken";
 import AuthenticationTokenException from "../../../../exceptions/AuthenticationTokenException";
 import VerifiedAccountException from "../../../../exceptions/VerifiedAccountException";
-import RequestVerifiedAccountDto from "../dto/authentication/requestVerifiedAccount.dto";
+import VerifiedAccountDto from "../dto/authentication/verified-account/verifiedAccount.dto";
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public tokenService = new TokenService();
@@ -33,14 +33,14 @@ export default class AuthenticationController extends ControllerBase implements 
 
     private initializeRoutes = () => {
         this.router
-        // register
+            // register
             .post(`${this.path}/authentication/register`, validationMiddleware(RegisterDto), this.registration)
             // login
             .post(`${this.path}/authentication/login`, validationMiddleware(LoginDto), this.loggingIn)
 
             // verified account
             .post(`${this.path}/authentication/request-verified-account`,
-                validationMiddleware(RequestVerifiedAccountDto), this.requestVerifiedAccount)
+                validationMiddleware(VerifiedAccountDto), this.requestVerifiedAccount)
             .get(`${this.path}/authentication/verified-account/:token`, this.verifiedAccount)
 
             // oauth 2.0
