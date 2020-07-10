@@ -14,7 +14,7 @@ import ChangePasswordDto from "../dto/authentication/changePassword.dto";
 import userTransformer from "../transformers/user.tranformer";
 import * as passport from "passport";
 import CurrentPasswordIncorrectException from "../../../../exceptions/CurrentPasswordIncorrectException";
-import SendEmailService from "../../../../services/sendMail.service";
+import SendMailService from "../../../../services/sendMail.service";
 import CannotSendEmailException from "../../../../exceptions/CannotSendEmail.exception";
 import * as jwt from "jsonwebtoken";
 import AuthenticationTokenException from "../../../../exceptions/AuthenticationTokenException";
@@ -23,6 +23,7 @@ import RequestVerifiedAccountDto from "../dto/authentication/requestVerifiedAcco
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public tokenService = new TokenService();
+    public sendMailService = new SendMailService();
     private user = userModel;
 
     constructor() {
@@ -39,7 +40,7 @@ export default class AuthenticationController extends ControllerBase implements 
                 validationMiddleware(RequestVerifiedAccountDto), this.requestVerifiedAccount)
             .get(`${this.path}/authentication/confirmation/:token`, this.verifiedAccount)
 
-            // login
+            // oauth 2.0
             .post(`${this.path}/authentication/login`, validationMiddleware(LoginDto), this.loggingIn)
             .get(`${this.path}/authentication/google`, passport.authenticate('google', {scope: ['profile', 'email']}))
             .get(`${this.path}/authentication/google/callback`,
@@ -60,20 +61,7 @@ export default class AuthenticationController extends ControllerBase implements 
             const userData: RegisterDto = request.body;
             const user = await this.authenticationService.register(userData);
             if (user) {
-                const otp = Math.floor(Math.random() * 999999 - 100000 + 1) + 100000;
-                const token = this.tokenService.createEmailToken(user).token;
-                const html = `
-                        <p>Chào bạn <strong>${user.username}</strong>,</p>
-                        <p>Bạn đã đăng kí tài khoản của bạn trên hệ thống.</p>
-                        <p>Mã xác nhận của bạn là: ${otp}</p>
-                        <p>Hãy điền mã xác nhận để hoàn tất quá trình này,</p>
-                        <p>hoặc nhấp vào liên kết để xác thực tài khoản của bạn
-                            <a href="${token}">Verify your account</a>
-                        </p>
-                        <p>Trân trọng,</p>
-                        <p>BQT Team.</p>
-                    `;
-                const sendEmail = await SendEmailService(user.email, html, `[ ] Mã code xác thực tài khoản ${user.username}`);
+                const sendEmail = await this.sendMailService.sendMailVerifiedAccount(user);
                 if (sendEmail) {
                     response.send({
                         data: {},
@@ -94,20 +82,7 @@ export default class AuthenticationController extends ControllerBase implements 
         try {
             const user = await userModel.findOne({email: request.body.email});
             if (user) {
-                const otp = Math.floor(Math.random() * 999999 - 100000 + 1) + 100000;
-                const token = this.tokenService.createEmailToken(user).token;
-                const html = `
-                        <p>Chào bạn <strong>${user.username}</strong>,</p>
-                        <p>Bạn đã đăng kí tài khoản của bạn trên hệ thống.</p>
-                        <p>Mã xác nhận của bạn là: ${otp}</p>
-                        <p>Hãy điền mã xác nhận để hoàn tất quá trình này,</p>
-                        <p>hoặc nhấp vào liên kết để xác thực tài khoản của bạn
-                            <a href="${token}">Verify your account</a>
-                        </p>
-                        <p>Trân trọng,</p>
-                        <p>BQT Team.</p>
-                    `;
-                const sendEmail = await SendEmailService(user.email, html, `[ ] Mã code xác thực tài khoản ${user.username}`);
+                const sendEmail = await this.sendMailService.sendMailVerifiedAccount(user);
                 if (sendEmail) {
                     response.send({
                         data: {},
@@ -118,8 +93,6 @@ export default class AuthenticationController extends ControllerBase implements 
                 } else {
                     next(new CannotSendEmailException())
                 }
-            } else {
-                next(new CannotSendEmailException())
             }
         } catch (e) {
             next(e)

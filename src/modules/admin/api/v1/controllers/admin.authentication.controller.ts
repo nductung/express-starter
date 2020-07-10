@@ -10,9 +10,7 @@ import Controller from '../../../../../interfaces/controller.interface';
 import Role from "../../../../../models/role.model";
 import LoginDto from "../dto/authentication/login.dto";
 import userTransformer from "../transformers/user.tranformer";
-import ChangePasswordDto from "../dto/authentication/changePassword.dto";
 import RegisterDto from "../dto/authentication/register.dto";
-import CurrentPasswordIncorrectException from "../../../../../exceptions/CurrentPasswordIncorrectException";
 
 export default class AdminAuthenticationController extends ControllerBase implements Controller {
     public tokenService = new TokenService();
@@ -28,8 +26,6 @@ export default class AdminAuthenticationController extends ControllerBase implem
             .post(`${this.path}/authentication/register`, validationMiddleware(RegisterDto), this.registration)
             .post(`${this.path}/authentication/login`, validationMiddleware(LoginDto), this.loggingIn)
             .get(`${this.path}/current`, authMiddleware(Role.Admin), this.getCurrent)
-            .post(`${this.path}/authentication/change-password`, authMiddleware(Role.Admin),
-                validationMiddleware(ChangePasswordDto), this.changePassword)
     };
 
     private registration = async (request: Request, response: Response, next: NextFunction) => {
@@ -89,30 +85,6 @@ export default class AdminAuthenticationController extends ControllerBase implem
                 status: 200,
                 success: true,
             });
-        } catch (e) {
-            next(e);
-        }
-    };
-
-    private changePassword = async (request: Request, response: Response, next: NextFunction) => {
-        try {
-            const user = await userModel.findById(this.getProfile()._id);
-            const match = await bcrypt.compare(request.body.currentPassword, user.password);
-
-            if (match) {
-                user.password = await bcrypt.hash(request.body.newPassword, 10);
-                user.updatedAt = new Date();
-                await user.save();
-                response.send({
-                    data: {},
-                    message: "Thay đỏi mật khẩu thành công",
-                    status: 200,
-                    success: true,
-                });
-            } else {
-                next(new CurrentPasswordIncorrectException());
-            }
-
         } catch (e) {
             next(e);
         }
