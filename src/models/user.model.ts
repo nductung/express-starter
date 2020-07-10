@@ -5,11 +5,14 @@ const userSchema = new mongoose.Schema(
     {
         firstName: {type: String, required: true},
         lastName: {type: String, required: true},
-        username: {type: String, unique: true, required: true},
-        email: {type: String, unique: true, required: true},
+        username: {type: String, required: true, unique: true},
+        email: {type: String, required: true, unique: true},
         password: {type: String, required: true},
-        role: {type: String, default: 'user'},
-        picture: {type: String, default: undefined},
+        role: {type: String, required: true, default: 'user'},
+        picture: {type: String, required: false, default: undefined},
+        male: {type: String, required: false, default: undefined},
+        phone: {type: String, required: false, default: undefined},
+        confirmed: {type: Boolean, required: true, default: false},
         ref_facebook: {type: Number, default: undefined},
         createdAt: {type: Date, default: Date.now},
         updatedAt: {type: Date, default: Date.now}

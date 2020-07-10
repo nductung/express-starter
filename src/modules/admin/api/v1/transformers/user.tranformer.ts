@@ -15,6 +15,9 @@ const singleItem = (item: InterfaceModelUser) => {
         lastName: item.lastName,
         fullName: item.fullName,
         picture: item.picture,
+        male: item.male,
+        phone: item.phone,
+        confirmed: item.confirmed,
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
     };

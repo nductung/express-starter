@@ -1,9 +1,12 @@
-import {cleanEnv, port, str} from 'envalid';
+import {cleanEnv, num, port, str} from 'envalid';
 
 function validateEnv() {
     cleanEnv(process.env, {
         PORT: port(),
         JWT_SECRET: str(),
+
+        TOKEN_LIFE_TIME: num(),
+        REFRESH_TOKEN_LIFE_TIME: num(),
 
         MONGO_USER: str(),
         MONGO_PASSWORD: str(),
