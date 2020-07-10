@@ -16,7 +16,6 @@ import * as passport from "passport";
 import CurrentPasswordIncorrectException from "../../../../exceptions/CurrentPasswordIncorrectException";
 import SendEmailService from "../../../../services/sendMail.service";
 import CannotSendEmailException from "../../../../exceptions/CannotSendEmail.exception";
-import AccountNotActiveException from "../../../../exceptions/AccountNotActiveException";
 import * as jwt from "jsonwebtoken";
 import AuthenticationTokenException from "../../../../exceptions/AuthenticationTokenException";
 import VerifiedAccountException from "../../../../exceptions/VerifiedAccountException";
@@ -221,7 +220,16 @@ export default class AuthenticationController extends ControllerBase implements 
                         success: true,
                     });
                 } else {
-                    next(new AccountNotActiveException());
+                    response.send({
+                        data: {
+                            username: user.username,
+                            email: user.email
+                        },
+                        message: "Vui lòng kích hoạt tài khoản của bạn trước khi đăng nhập",
+                        status: 400,
+                        success: false,
+                    });
+                    // next(new AccountNotActiveException());
                 }
             } else {
                 next(new WrongCredentialsException());
