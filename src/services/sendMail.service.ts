@@ -45,7 +45,7 @@ class SendMailService {
                         <p>Mã xác nhận của bạn là: ${otp}</p>
                         <p>Hãy điền mã xác nhận để hoàn tất quá trình này,</p>
                         <p>hoặc nhấp vào liên kết để xác thực tài khoản của bạn
-                            <a href="${token}">Verify your account</a>
+                            <a href="http://localhost:4000/api/v1/authentication/verified-account/${token}">Verify your account</a>
                         </p>
                         <p>Trân trọng,</p>
                         <p>BQT Team.</p>

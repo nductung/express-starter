@@ -166,7 +166,7 @@ export default class AuthenticationController extends ControllerBase implements 
                         data: {
                             ...userTransformer(user.toJSON()),
                         },
-                        message: "Bạn đã xác thực tài khoản thành công",
+                        message: "Tài khoản của bạn đã được xác thực thành công, xin mời đăng nhập",
                         status: 200,
                         success: true,
                     });
