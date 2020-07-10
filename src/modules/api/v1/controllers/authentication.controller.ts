@@ -19,6 +19,7 @@ import CannotSendEmailException from "../../../../exceptions/CannotSendEmail.exc
 import * as jwt from "jsonwebtoken";
 import AuthenticationTokenException from "../../../../exceptions/AuthenticationTokenException";
 import VerifiedAccountException from "../../../../exceptions/VerifiedAccountException";
+import RequestVerifiedAccountDto from "../dto/authentication/requestVerifiedAccount.dto";
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public tokenService = new TokenService();
@@ -31,18 +32,128 @@ export default class AuthenticationController extends ControllerBase implements 
 
     private initializeRoutes = () => {
         this.router
+
+            // register
             .post(`${this.path}/authentication/register`, validationMiddleware(RegisterDto), this.registration)
+            .post(`${this.path}/authentication/request-verified-account`,
+                validationMiddleware(RequestVerifiedAccountDto), this.requestVerifiedAccount)
+            .get(`${this.path}/authentication/confirmation/:token`, this.verifiedAccount)
+
+            // login
             .post(`${this.path}/authentication/login`, validationMiddleware(LoginDto), this.loggingIn)
-            .get(`${this.path}/current`, authMiddleware(Role.User), this.getCurrent)
-            .post(`${this.path}/authentication/change-password`, authMiddleware(Role.User),
-                validationMiddleware(ChangePasswordDto), this.changePassword)
             .get(`${this.path}/authentication/google`, passport.authenticate('google', {scope: ['profile', 'email']}))
             .get(`${this.path}/authentication/google/callback`,
                 passport.authenticate('google', {failureRedirect: `/`}), this.loginWithGoogle)
             .get(`${this.path}/authentication/facebook`, passport.authenticate('facebook', {scope: 'email'}))
             .get(`${this.path}/authentication/facebook/callback`,
                 passport.authenticate('facebook', {failureRedirect: '/'}), this.loginWithFacebook)
-            .get(`${this.path}/authentication/confirmation/:token`, this.activeAccount)
+
+            //
+            .get(`${this.path}/current`, authMiddleware(Role.User), this.getCurrent)
+            .post(`${this.path}/authentication/change-password`, authMiddleware(Role.User),
+                validationMiddleware(ChangePasswordDto), this.changePassword)
+    };
+
+
+    private registration = async (request: Request, response: Response, next: NextFunction) => {
+        try {
+            const userData: RegisterDto = request.body;
+            const user = await this.authenticationService.register(userData);
+            if (user) {
+                const otp = Math.floor(Math.random() * 999999 - 100000 + 1) + 100000;
+                const token = this.tokenService.createEmailToken(user).token;
+                const html = `
+                        <p>Chào bạn <strong>${user.username}</strong>,</p>
+                        <p>Bạn đã đăng kí tài khoản của bạn trên hệ thống.</p>
+                        <p>Mã xác nhận của bạn là: ${otp}</p>
+                        <p>Hãy điền mã xác nhận để hoàn tất quá trình này,</p>
+                        <p>hoặc nhấp vào liên kết để xác thực tài khoản của bạn
+                            <a href="${token}">Verify your account</a>
+                        </p>
+                        <p>Trân trọng,</p>
+                        <p>BQT Team.</p>
+                    `;
+                const sendEmail = await SendEmailService(user.email, html, `[ ] Mã code xác thực tài khoản ${user.username}`);
+                if (sendEmail) {
+                    response.send({
+                        data: {},
+                        message: "Hãy kiểm tra email của bạn để kích hoạt tài khoản",
+                        status: 200,
+                        success: true,
+                    });
+                } else {
+                    next(new CannotSendEmailException())
+                }
+            }
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    private requestVerifiedAccount = async (request: Request, response: Response, next: NextFunction) => {
+        try {
+            const user = await userModel.findOne({email: request.body.email});
+            if (user) {
+                const otp = Math.floor(Math.random() * 999999 - 100000 + 1) + 100000;
+                const token = this.tokenService.createEmailToken(user).token;
+                const html = `
+                        <p>Chào bạn <strong>${user.username}</strong>,</p>
+                        <p>Bạn đã đăng kí tài khoản của bạn trên hệ thống.</p>
+                        <p>Mã xác nhận của bạn là: ${otp}</p>
+                        <p>Hãy điền mã xác nhận để hoàn tất quá trình này,</p>
+                        <p>hoặc nhấp vào liên kết để xác thực tài khoản của bạn
+                            <a href="${token}">Verify your account</a>
+                        </p>
+                        <p>Trân trọng,</p>
+                        <p>BQT Team.</p>
+                    `;
+                const sendEmail = await SendEmailService(user.email, html, `[ ] Mã code xác thực tài khoản ${user.username}`);
+                if (sendEmail) {
+                    response.send({
+                        data: {},
+                        message: "Hãy kiểm tra email của bạn để kích hoạt tài khoản",
+                        status: 200,
+                        success: true,
+                    });
+                } else {
+                    next(new CannotSendEmailException())
+                }
+            } else {
+                next(new CannotSendEmailException())
+            }
+        } catch (e) {
+            next(e)
+        }
+    };
+
+    private verifiedAccount = async (request: Request, response: Response, next: NextFunction) => {
+        try {
+            const token = request.params.token;
+            const secret: string = process.env.EMAIL_SECRET;
+            const verificationResponse: any = jwt.verify(token, secret);
+            const user = await userModel.findById(verificationResponse._id);
+            if (user) {
+                if (user.confirmed) {
+                    next(new VerifiedAccountException());
+                } else {
+                    user.confirmed = true;
+                    user.updatedAt = new Date();
+                    await user.save();
+                    response.send({
+                        data: {
+                            ...userTransformer(user.toJSON()),
+                        },
+                        message: "Bạn đã xác thực tài khoản thành công",
+                        status: 200,
+                        success: true,
+                    });
+                }
+            } else {
+                next(new AuthenticationTokenException());
+            }
+        } catch (e) {
+            next(e)
+        }
     };
 
     private loginWithFacebook = async (request: any, response: Response, next: NextFunction) => {
@@ -125,71 +236,6 @@ export default class AuthenticationController extends ControllerBase implements 
             }
         } catch (e) {
             next(e)
-        }
-    };
-
-    private activeAccount = async (request: Request, response: Response, next: NextFunction) => {
-        try {
-            const token = request.params.token;
-            const secret: string = process.env.EMAIL_SECRET;
-            const verificationResponse: any = jwt.verify(token, secret);
-            const user = await userModel.findById(verificationResponse._id);
-            if (user) {
-                if (user.confirmed) {
-                    next(new VerifiedAccountException());
-                } else {
-                    user.confirmed = true;
-                    user.updatedAt = new Date();
-                    await user.save();
-                    response.send({
-                        data: {
-                            ...userTransformer(user.toJSON()),
-                        },
-                        message: "Bạn đã xác thực tài khoản thành công",
-                        status: 200,
-                        success: true,
-                    });
-                }
-            } else {
-                next(new AuthenticationTokenException());
-            }
-        } catch (e) {
-            next(e)
-        }
-    };
-
-    private registration = async (request: Request, response: Response, next: NextFunction) => {
-        try {
-            const userData: RegisterDto = request.body;
-            const user = await this.authenticationService.register(userData);
-            if (user) {
-                const otp = Math.floor(Math.random() * 999999 - 100000 + 1) + 100000;
-                const token = this.tokenService.createEmailToken(user).token;
-                const html = `
-                        <p>Chào bạn <strong>${userData.username}</strong>,</p>
-                        <p>Bạn đã đăng kí tài khoản của bạn trên hệ thống.</p>
-                        <p>Mã xác nhận của bạn là: ${otp}</p>
-                        <p>Hãy điền mã xác nhận để hoàn tất quá trình này,</p>
-                        <p>hoặc nhấp vào liên kết để xác thực tài khoản của bạn
-                            <a href="${token}">Verify your account</a>
-                        </p>
-                        <p>Trân trọng,</p>
-                        <p>BQT Team.</p>
-                    `;
-                const sendEmail = await SendEmailService(userData.email, html, `[ ] Mã code xác thực tài khoản ${userData.username}`);
-                if (sendEmail) {
-                    response.send({
-                        data: {},
-                        message: "Hãy kiểm tra email của bạn để kích hoạt tài khoản",
-                        status: 200,
-                        success: true,
-                    });
-                } else {
-                    next(new CannotSendEmailException())
-                }
-            }
-        } catch (error) {
-            next(error);
         }
     };
 
