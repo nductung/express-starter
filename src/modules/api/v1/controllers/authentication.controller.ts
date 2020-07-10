@@ -33,15 +33,17 @@ export default class AuthenticationController extends ControllerBase implements 
 
     private initializeRoutes = () => {
         this.router
-
-            // register
+        // register
             .post(`${this.path}/authentication/register`, validationMiddleware(RegisterDto), this.registration)
+            // login
+            .post(`${this.path}/authentication/login`, validationMiddleware(LoginDto), this.loggingIn)
+
+            // verified account
             .post(`${this.path}/authentication/request-verified-account`,
                 validationMiddleware(RequestVerifiedAccountDto), this.requestVerifiedAccount)
-            .get(`${this.path}/authentication/confirmation/:token`, this.verifiedAccount)
+            .get(`${this.path}/authentication/verified-account/:token`, this.verifiedAccount)
 
             // oauth 2.0
-            .post(`${this.path}/authentication/login`, validationMiddleware(LoginDto), this.loggingIn)
             .get(`${this.path}/authentication/google`, passport.authenticate('google', {scope: ['profile', 'email']}))
             .get(`${this.path}/authentication/google/callback`,
                 passport.authenticate('google', {failureRedirect: `/`}), this.loginWithGoogle)
@@ -49,8 +51,10 @@ export default class AuthenticationController extends ControllerBase implements 
             .get(`${this.path}/authentication/facebook/callback`,
                 passport.authenticate('facebook', {failureRedirect: '/'}), this.loginWithFacebook)
 
-            //
+            // get profile
             .get(`${this.path}/current`, authMiddleware(Role.User), this.getCurrent)
+
+            // change password
             .post(`${this.path}/authentication/change-password`, authMiddleware(Role.User),
                 validationMiddleware(ChangePasswordDto), this.changePassword)
     };
