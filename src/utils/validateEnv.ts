@@ -4,6 +4,7 @@ function validateEnv() {
     cleanEnv(process.env, {
         PORT: port(),
         JWT_SECRET: str(),
+        EMAIL_SECRET: str(),
 
         TOKEN_LIFE_TIME: num(),
         REFRESH_TOKEN_LIFE_TIME: num(),
@@ -12,16 +13,16 @@ function validateEnv() {
         MONGO_PASSWORD: str(),
         MONGO_PATH: str(),
 
+        MAIL_USER: str(),
+        MAIL_PASSWORD: str(),
+        MAIL_HOST: str(),
+        MAIL_PORT: str(),
+
         GOOGLE_CLIENT_ID: str(),
         GOOGLE_CLIENT_SECRET: str(),
 
         FACEBOOK_CLIENT_ID: str(),
         FACEBOOK_CLIENT_SECRET: str(),
-
-        MAIL_USER: str(),
-        MAIL_PASSWORD: str(),
-        MAIL_HOST: str(),
-        MAIL_PORT: str(),
     });
 }
 

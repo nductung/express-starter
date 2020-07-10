@@ -3,7 +3,11 @@ import * as jwt from "jsonwebtoken";
 class TokenService {
 
     public createToken(user: any, type: boolean) {
-        const expiresIn = type ? process.env.TOKEN_LIFE_TIME : process.env.REFRESH_TOKEN_LIFE_TIME;
+        const expiresIn = type
+            // tslint:disable-next-line:radix
+            ? parseInt(process.env.TOKEN_LIFE_TIME)
+            // tslint:disable-next-line:radix
+            : parseInt(process.env.REFRESH_TOKEN_LIFE_TIME);
         const secret: string = process.env.JWT_SECRET;
         const dataStoredInToken: { _id: string; role: string } = {
             _id: user.id,
@@ -17,7 +21,8 @@ class TokenService {
     }
 
     public createEmailToken(user: any) {
-        const expiresIn = process.env.TOKEN_LIFE_TIME;
+        // tslint:disable-next-line:radix
+        const expiresIn = parseInt(process.env.TOKEN_LIFE_TIME);
         const secret: string = process.env.EMAIL_SECRET;
         const dataStoredInToken: { _id: string } = {
             _id: user.id,

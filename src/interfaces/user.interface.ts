@@ -10,7 +10,7 @@ interface InterfaceModelUser {
     picture: string,
     male: string,
     phone: string,
-    confirmed: string,
+    confirmed: boolean,
     ref_facebook: string,
     createdAt: Date,
     updatedAt: Date,

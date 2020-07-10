@@ -17,6 +17,9 @@ import CurrentPasswordIncorrectException from "../../../../exceptions/CurrentPas
 import SendEmailService from "../../../../services/sendMail.service";
 import CannotSendEmailException from "../../../../exceptions/CannotSendEmail.exception";
 import AccountNotActiveException from "../../../../exceptions/AccountNotActiveException";
+import * as jwt from "jsonwebtoken";
+import AuthenticationTokenException from "../../../../exceptions/AuthenticationTokenException";
+import VerifiedAccountException from "../../../../exceptions/VerifiedAccountException";
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public tokenService = new TokenService();
@@ -40,7 +43,7 @@ export default class AuthenticationController extends ControllerBase implements 
             .get(`${this.path}/authentication/facebook`, passport.authenticate('facebook', {scope: 'email'}))
             .get(`${this.path}/authentication/facebook/callback`,
                 passport.authenticate('facebook', {failureRedirect: '/'}), this.loginWithFacebook)
-            .post(`${this.path}/authentication/confirmation/:token`, this.activeAccount)
+            .get(`${this.path}/authentication/confirmation/:token`, this.activeAccount)
     };
 
     private loginWithFacebook = async (request: any, response: Response, next: NextFunction) => {
@@ -128,7 +131,29 @@ export default class AuthenticationController extends ControllerBase implements 
 
     private activeAccount = async (request: Request, response: Response, next: NextFunction) => {
         try {
-            response.end()
+            const token = request.params.token;
+            const secret: string = process.env.EMAIL_SECRET;
+            const verificationResponse: any = jwt.verify(token, secret);
+            const user = await userModel.findById(verificationResponse._id);
+            if (user) {
+                if (user.confirmed) {
+                    next(new VerifiedAccountException());
+                } else {
+                    user.confirmed = true;
+                    user.updatedAt = new Date();
+                    await user.save();
+                    response.send({
+                        data: {
+                            ...userTransformer(user.toJSON()),
+                        },
+                        message: "Bạn đã xác thực tài khoản thành công",
+                        status: 200,
+                        success: true,
+                    });
+                }
+            } else {
+                next(new AuthenticationTokenException());
+            }
         } catch (e) {
             next(e)
         }
