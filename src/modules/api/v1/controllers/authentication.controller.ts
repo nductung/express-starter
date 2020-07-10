@@ -82,6 +82,52 @@ export default class AuthenticationController extends ControllerBase implements 
         }
     };
 
+    private loggingIn = async (request: Request, response: Response, next: NextFunction) => {
+        const logInData: LoginDto = request.body;
+        const user = await this.user.findOne({username: logInData.username});
+        if (user && user.role === 'user') {
+            const isPasswordMatching = await bcrypt.compare(
+                logInData.password,
+                user.get('password', null, {getters: false}),
+            );
+            if (isPasswordMatching) {
+                if (user.confirmed) {
+                    const tokenData = this.tokenService.createToken(user, true);
+                    const refreshTokenData = this.tokenService.createToken(user, false);
+                    const valueToken = {
+                        accessToken: tokenData.token,
+                        refreshToken: refreshTokenData.token,
+                    };
+
+                    response.send({
+                        data: {
+                            ...userTransformer(user.toJSON()),
+                            ...valueToken
+                        },
+                        message: "Đăng nhập thành công",
+                        status: 200,
+                        success: true,
+                    });
+                } else {
+                    response.send({
+                        data: {
+                            username: user.username,
+                            email: user.email
+                        },
+                        message: "Vui lòng kích hoạt tài khoản của bạn trước khi đăng nhập",
+                        status: 400,
+                        success: false,
+                    });
+                    // next(new AccountNotActiveException());
+                }
+            } else {
+                next(new WrongCredentialsException());
+            }
+        } else {
+            next(new WrongCredentialsException());
+        }
+    };
+
     private requestVerifiedAccount = async (request: Request, response: Response, next: NextFunction) => {
         try {
             const user = await userModel.findOne({email: request.body.email});
@@ -133,49 +179,6 @@ export default class AuthenticationController extends ControllerBase implements 
         }
     };
 
-    private loginWithFacebook = async (request: any, response: Response, next: NextFunction) => {
-        try {
-            const data = request.user._json;
-            const user = await userModel.findOne({ref_facebook: data.id});
-            if (user) {
-                response.send({
-                    data: {
-                        ...userTransformer(user.toJSON()),
-                        ...this.tokenService.createValueToken(user)
-                    },
-                    message: "Đăng nhập thành công",
-                    status: 200,
-                    success: true,
-                })
-            } else {
-                const userData = new userModel();
-                userData.firstName = data.first_name;
-                userData.lastName = data.last_name;
-                userData.username = await this.authenticationService.usernameGenerator(data.email);
-                userData.picture = data.picture.data.url;
-                userData.password = await bcrypt.hash('12356890', 10);
-                userData.email = await userModel.findOne({email: data.email})
-                    ? `no-email-${Math.floor(Math.random() * 999999 - 100000 + 1) + 100000}@email.com`
-                    : data.email;
-                userData.ref_facebook = data.id;
-
-                await userData.save();
-
-                response.send({
-                    data: {
-                        ...userTransformer(userData.toJSON()),
-                        ...this.tokenService.createValueToken(userData)
-                    },
-                    message: "Đăng nhập thành công",
-                    status: 200,
-                    success: true,
-                });
-            }
-        } catch (e) {
-            next(e)
-        }
-    };
-
     private loginWithGoogle = async (request: any, response: Response, next: NextFunction) => {
         try {
             const data = request.user._json;
@@ -216,49 +219,46 @@ export default class AuthenticationController extends ControllerBase implements 
         }
     };
 
-    private loggingIn = async (request: Request, response: Response, next: NextFunction) => {
-        const logInData: LoginDto = request.body;
-        const user = await this.user.findOne({username: logInData.username});
-        if (user && user.role === 'user') {
-            const isPasswordMatching = await bcrypt.compare(
-                logInData.password,
-                user.get('password', null, {getters: false}),
-            );
-            if (isPasswordMatching) {
-                if (user.confirmed) {
-                    const tokenData = this.tokenService.createToken(user, true);
-                    const refreshTokenData = this.tokenService.createToken(user, false);
-                    const valueToken = {
-                        accessToken: tokenData.token,
-                        refreshToken: refreshTokenData.token,
-                    };
-
-                    response.send({
-                        data: {
-                            ...userTransformer(user.toJSON()),
-                            ...valueToken
-                        },
-                        message: "Đăng nhập thành công",
-                        status: 200,
-                        success: true,
-                    });
-                } else {
-                    response.send({
-                        data: {
-                            username: user.username,
-                            email: user.email
-                        },
-                        message: "Vui lòng kích hoạt tài khoản của bạn trước khi đăng nhập",
-                        status: 400,
-                        success: false,
-                    });
-                    // next(new AccountNotActiveException());
-                }
+    private loginWithFacebook = async (request: any, response: Response, next: NextFunction) => {
+        try {
+            const data = request.user._json;
+            const user = await userModel.findOne({ref_facebook: data.id});
+            if (user) {
+                response.send({
+                    data: {
+                        ...userTransformer(user.toJSON()),
+                        ...this.tokenService.createValueToken(user)
+                    },
+                    message: "Đăng nhập thành công",
+                    status: 200,
+                    success: true,
+                })
             } else {
-                next(new WrongCredentialsException());
+                const userData = new userModel();
+                userData.firstName = data.first_name;
+                userData.lastName = data.last_name;
+                userData.username = await this.authenticationService.usernameGenerator(data.email);
+                userData.picture = data.picture.data.url;
+                userData.password = await bcrypt.hash('12356890', 10);
+                userData.email = await userModel.findOne({email: data.email})
+                    ? `no-email-${Math.floor(Math.random() * 999999 - 100000 + 1) + 100000}@email.com`
+                    : data.email;
+                userData.ref_facebook = data.id;
+
+                await userData.save();
+
+                response.send({
+                    data: {
+                        ...userTransformer(userData.toJSON()),
+                        ...this.tokenService.createValueToken(userData)
+                    },
+                    message: "Đăng nhập thành công",
+                    status: 200,
+                    success: true,
+                });
             }
-        } else {
-            next(new WrongCredentialsException());
+        } catch (e) {
+            next(e)
         }
     };
 
