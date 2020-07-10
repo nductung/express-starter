@@ -14,6 +14,9 @@ import ChangePasswordDto from "../dto/authentication/changePassword.dto";
 import userTransformer from "../transformers/user.tranformer";
 import * as passport from "passport";
 import CurrentPasswordIncorrectException from "../../../../exceptions/CurrentPasswordIncorrectException";
+import SendEmailService from "../../../../services/sendMail.service";
+import CannotSendEmailException from "../../../../exceptions/CannotSendEmail.exception";
+import AccountNotActiveException from "../../../../exceptions/AccountNotActiveException";
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public tokenService = new TokenService();
@@ -37,6 +40,7 @@ export default class AuthenticationController extends ControllerBase implements 
             .get(`${this.path}/authentication/facebook`, passport.authenticate('facebook', {scope: 'email'}))
             .get(`${this.path}/authentication/facebook/callback`,
                 passport.authenticate('facebook', {failureRedirect: '/'}), this.loginWithFacebook)
+            .post(`${this.path}/authentication/confirmation/:token`, this.activeAccount)
     };
 
     private loginWithFacebook = async (request: any, response: Response, next: NextFunction) => {
@@ -122,32 +126,43 @@ export default class AuthenticationController extends ControllerBase implements 
         }
     };
 
+    private activeAccount = async (request: Request, response: Response, next: NextFunction) => {
+        try {
+            response.end()
+        } catch (e) {
+            next(e)
+        }
+    };
+
     private registration = async (request: Request, response: Response, next: NextFunction) => {
         try {
             const userData: RegisterDto = request.body;
             const user = await this.authenticationService.register(userData);
             if (user) {
-                const token = Math.floor(Math.random() * 999999 - 100000 + 1) + 100000;
+                const otp = Math.floor(Math.random() * 999999 - 100000 + 1) + 100000;
+                const token = this.tokenService.createEmailToken(user).token;
                 const html = `
                         <p>Chào bạn <strong>${userData.username}</strong>,</p>
                         <p>Bạn đã đăng kí tài khoản của bạn trên hệ thống.</p>
-                        <p>Mã xác nhận của bạn là: ${token}</p>
-                        <p>Hãy điền mã xác nhận để hoàn tất quá trình này.</p>
+                        <p>Mã xác nhận của bạn là: ${otp}</p>
+                        <p>Hãy điền mã xác nhận để hoàn tất quá trình này,</p>
+                        <p>hoặc nhấp vào liên kết để xác thực tài khoản của bạn
+                            <a href="${token}">Verify your account</a>
+                        </p>
                         <p>Trân trọng,</p>
                         <p>BQT Team.</p>
                     `;
-                // tslint:disable-next-line:max-line-length
-                // const sendEmail = await SendEmailService(userData.email, html, `[ ] Mã code xác thực tài khoản ${userData.username}`);
-                // if (sendEmail) {
+                const sendEmail = await SendEmailService(userData.email, html, `[ ] Mã code xác thực tài khoản ${userData.username}`);
+                if (sendEmail) {
                     response.send({
-                        data: userTransformer(user),
-                        message: "Bạn đã đăng ký thành công",
+                        data: {},
+                        message: "Hãy kiểm tra email của bạn để kích hoạt tài khoản",
                         status: 200,
                         success: true,
                     });
-                // } else {
-                //     next(new CannotSendEmailException())
-                // }
+                } else {
+                    next(new CannotSendEmailException())
+                }
             }
         } catch (error) {
             next(error);
@@ -163,22 +178,26 @@ export default class AuthenticationController extends ControllerBase implements 
                 user.get('password', null, {getters: false}),
             );
             if (isPasswordMatching) {
-                const tokenData = this.tokenService.createToken(user, true);
-                const refreshTokenData = this.tokenService.createToken(user, false);
-                const valueToken = {
-                    accessToken: tokenData.token,
-                    refreshToken: refreshTokenData.token,
-                };
+                if (user.confirmed) {
+                    const tokenData = this.tokenService.createToken(user, true);
+                    const refreshTokenData = this.tokenService.createToken(user, false);
+                    const valueToken = {
+                        accessToken: tokenData.token,
+                        refreshToken: refreshTokenData.token,
+                    };
 
-                response.send({
-                    data: {
-                        ...userTransformer(user.toJSON()),
-                        ...valueToken
-                    },
-                    message: "Đăng nhập thành công",
-                    status: 200,
-                    success: true,
-                });
+                    response.send({
+                        data: {
+                            ...userTransformer(user.toJSON()),
+                            ...valueToken
+                        },
+                        message: "Đăng nhập thành công",
+                        status: 200,
+                        success: true,
+                    });
+                } else {
+                    next(new AccountNotActiveException());
+                }
             } else {
                 next(new WrongCredentialsException());
             }
