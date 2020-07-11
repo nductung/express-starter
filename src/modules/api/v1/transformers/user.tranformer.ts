@@ -17,7 +17,6 @@ const singleItem = (item: InterfaceModelUser) => {
         picture: item.picture,
         male: item.male,
         phone: item.phone,
-        confirmed: item.confirmed,
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
     };
