@@ -2,12 +2,12 @@ import {IsNotEmpty, IsString} from 'class-validator';
 
 class VerifiedAccountDto {
 
-    @IsNotEmpty()
     @IsString()
+    @IsNotEmpty()
     public email!: string;
 
-    @IsNotEmpty()
     @IsString()
+    @IsNotEmpty()
     public otp!: string;
 
 }

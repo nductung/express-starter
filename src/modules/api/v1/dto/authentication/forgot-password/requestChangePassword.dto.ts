@@ -3,9 +3,9 @@ import {EmailDoesNotExistDto} from "../../emailDoesNotExist .dto";
 
 class RequestChangePasswordDto {
 
-    @IsNotEmpty()
-    @IsEmail()
     @EmailDoesNotExistDto({message: 'Email chưa được đăng ký tài khoản trên hệ thống'})
+    @IsEmail()
+    @IsNotEmpty()
     public email!: string;
 
 }

@@ -2,12 +2,12 @@ import {IsNotEmpty, IsString} from 'class-validator';
 
 class LoginDto {
 
-    @IsNotEmpty()
     @IsString()
+    @IsNotEmpty()
     public username: string;
 
-    @IsNotEmpty()
     @IsString()
+    @IsNotEmpty()
     public password: string;
 
 }

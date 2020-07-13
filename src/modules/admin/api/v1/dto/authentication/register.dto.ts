@@ -1,22 +1,27 @@
-import {IsEmail, IsString, MinLength} from 'class-validator';
+import {IsEmail, IsNotEmpty, IsString, MinLength} from 'class-validator';
 
 class RegisterDto {
 
     @IsString()
+    @IsNotEmpty()
     public firstName: string;
 
     @IsString()
+    @IsNotEmpty()
     public lastName: string;
 
-    @IsString()
     @MinLength(5)
+    @IsString()
+    @IsNotEmpty()
     public username: string;
 
     @IsEmail()
+    @IsNotEmpty()
     public email: string;
 
-    @IsString()
     @MinLength(8)
+    @IsString()
+    @IsNotEmpty()
     public password: string;
 
 }

@@ -4,20 +4,20 @@ import {ConfirmPasswordDto} from "../confirmPassword";
 
 class ChangePasswordDto {
 
-    @IsNotEmpty()
     @IsString()
+    @IsNotEmpty()
     public currentPassword!: string;
 
-    @IsNotEmpty()
-    @IsString()
-    @MinLength(8)
     @NewPasswordDto({message: 'Mật khẩu mới phải khác với mật khẩu hiện tại'})
+    @MinLength(8)
+    @IsString()
+    @IsNotEmpty()
     public newPassword!: string;
 
-    @IsNotEmpty()
-    @IsString()
-    @MinLength(8)
     @ConfirmPasswordDto({message: 'Mật khẩu mới và mật khẩu xác nhận không giống nhau'})
+    @MinLength(8)
+    @IsString()
+    @IsNotEmpty()
     public confirmPassword!: string;
 
 }

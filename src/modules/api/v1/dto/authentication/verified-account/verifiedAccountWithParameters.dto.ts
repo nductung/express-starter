@@ -1,13 +1,13 @@
-import {IsEmpty, IsNotEmpty} from 'class-validator';
+import {IsEmail, IsEmpty, IsNotEmpty, IsString} from 'class-validator';
 
 class VerifiedAccountWithParametersDto {
 
+    @IsEmail()
     @IsNotEmpty()
-    @IsEmpty()
     public email!: string;
 
+    @IsString()
     @IsNotEmpty()
-    @IsEmpty()
     public otp!: string;
 
 }
