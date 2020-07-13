@@ -63,7 +63,7 @@ class SendMailService {
         const html = `
                         <p>Chào bạn <strong>${user.username}</strong>,</p>
                         <p>Mã xác minh của bạn là: ${otp}</p>
-                        <a href="http://localhost:4000/api/v1/authentication/forgot-password?email=${user.email}&otp=${otp}"
+                        <a href="#?email=${user.email}&otp=${otp}"
                         style="color: white;
                             padding: .75rem 1.1875rem;
                             border-radius: 8px;
