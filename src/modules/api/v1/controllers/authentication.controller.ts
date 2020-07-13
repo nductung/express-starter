@@ -157,17 +157,17 @@ export default class AuthenticationController extends ControllerBase implements 
 
     private verifiedAccount = async (request: Request, response: Response, next: NextFunction) => {
         try {
-            let data;
+            let dataRequest;
             if (request.method === 'POST') {
-                data = request.body;
+                dataRequest = request.body;
             } else if (request.method === 'GET') {
-                data = request.query;
+                dataRequest = request.query;
             }
-            const key = `verify-account-${data.username}`;
+            const key = `verify-account-${dataRequest.username}`;
             const otp = await this.globals.__redis.getAsync(key);
-            if (otp === data.otp) {
+            if (otp === dataRequest.otp) {
                 const user = await userModel.findOne({
-                    username: data.username
+                    username: dataRequest.username
                 });
                 if (user) {
                     if (user.confirmed) {
