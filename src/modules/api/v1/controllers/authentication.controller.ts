@@ -162,6 +162,10 @@ export default class AuthenticationController extends ControllerBase implements 
                         user.confirmed = true;
                         user.updatedAt = new Date();
                         await user.save();
+
+                        //
+                        this.globals.__redis.del(token);
+
                         response.send({
                             data: {
                                 ...userTransformer(user.toJSON()),
