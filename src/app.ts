@@ -8,6 +8,8 @@ import Controller from './interfaces/controller.interface';
 import errorMiddleware from './middleware/error.middleware';
 import * as path from "path";
 import * as passport from "passport";
+import * as redis from 'redis';
+import * as bluebird from 'bluebird';
 import cookieSession = require("cookie-session");
 
 // tslint:disable-next-line:no-var-requires
@@ -26,6 +28,7 @@ class App {
         this.initializeMiddlewares();
         this.initializeControllers(controllers);
         this.initializeErrorHandling();
+        this.initializeRedis();
 
         this.app.use((req, res, next) => {
             res.header('Access-Control-Allow-Origin', '*');
@@ -43,8 +46,8 @@ class App {
             useUnifiedTopology: true,
             useFindAndModify: false
         };
-        // tslint:disable-next-line:max-line-length
-        await mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_PATH}`, connectionOptions)
+        await mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_PATH}`,
+            connectionOptions)
             .then(() => console.log('MongoDB Connected'))
             .catch((err) => {
                 console.log(err);
@@ -77,6 +80,22 @@ class App {
 
     private initializeErrorHandling() {
         this.app.use(errorMiddleware);
+    }
+
+    private initializeRedis() {
+        const globals: any = global;
+        const client = redis.createClient(); // this creates a new client
+
+        bluebird.promisifyAll(redis.RedisClient.prototype);
+        bluebird.promisifyAll(redis.Multi.prototype);
+
+        client.on('connect', () => {
+            console.log('Redis client connected');
+        });
+        client.on('error', (err: any) => {
+            console.log('Something went wrong ' + err);
+        });
+        globals.__redis = client;
     }
 
     private initializeControllers(controllers: Controller[]) {
