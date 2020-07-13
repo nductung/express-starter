@@ -153,8 +153,8 @@ export default class AuthenticationController extends ControllerBase implements 
 
     private verifiedAccount = async (request: Request, response: Response, next: NextFunction) => {
         try {
-            const token = `verify-account-${request.body.otp.trim()}`;
-            const username = await this.globals.__redis.getAsync(token);
+            const otp = `verify-account-${request.body.otp.trim()}`;
+            const username = await this.globals.__redis.getAsync(otp);
             if (username) {
                 const user = await userModel.findOne({username});
                 if (user) {
@@ -166,7 +166,7 @@ export default class AuthenticationController extends ControllerBase implements 
                         await user.save();
 
                         //
-                        this.globals.__redis.del(token);
+                        this.globals.__redis.del(otp);
 
                         response.send({
                             data: {

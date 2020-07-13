@@ -38,15 +38,15 @@ class SendMailService {
     }
 
     async sendMailVerifiedAccount(user: InterfaceModelUser) {
-        const random = Math.floor(Math.random() * 999999 - 100000 + 1) + 100000;
-        const otp = `verify-account-${random}`;
-        this.globals.__redis.set(otp, user.username);
-        this.globals.__redis.expire(otp, 900);
+        const otp = Math.floor(Math.random() * 999999 - 100000 + 1) + 100000;
+        const key = `verify-account-${otp}`;
+        this.globals.__redis.set(key, user.username);
+        this.globals.__redis.expire(key, 900);
         const token = this.tokenService.createEmailToken(user).token;
         const html = `
                         <p>Chào bạn <strong>${user.username}</strong>,</p>
                         <p>Bạn đã đăng kí tài khoản của bạn trên hệ thống.</p>
-                        <p>Mã xác nhận của bạn là: ${random}</p>
+                        <p>Mã xác nhận của bạn là: ${otp}</p>
                         <p>Hãy điền mã xác nhận để hoàn tất quá trình này,</p>
                         <p>hoặc nhấp vào liên kết để xác thực tài khoản của bạn
                             <a href="http://localhost:4000/api/v1/authentication/verified-account/${token}">Verify your account</a>
