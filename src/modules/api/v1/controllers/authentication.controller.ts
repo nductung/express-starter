@@ -23,6 +23,7 @@ import UserNotFoundException from "../../../../exceptions/UserNotFoundException"
 import VerifiedAccountDto from "../dto/authentication/verified-account/verifiedAccount.dto";
 import paramMiddleware from "../../../../middleware/param.middleware";
 import VerifiedAccountWithParametersDto from "../dto/authentication/verified-account/verifiedAccountWithParameters.dto";
+import RequestChangePasswordDto from "../dto/authentication/forgot-password/requestChangePassword.dto";
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public tokenService = new TokenService();
@@ -42,12 +43,18 @@ export default class AuthenticationController extends ControllerBase implements 
             .post(`${this.path}/authentication/login`, validationMiddleware(LoginDto), this.loggingIn)
 
             // verified account
-            .post(`${this.path}/authentication/request-verified-account`,
+            .post(`${this.path}/authentication/request-verify-account`,
                 validationMiddleware(RequestVerifiedAccountDto), this.requestVerifiedAccount)
-            .post(`${this.path}/authentication/verified-account`,
+            .post(`${this.path}/authentication/verify-account`,
                 validationMiddleware(VerifiedAccountDto), this.verifiedAccount)
-            .get(`${this.path}/authentication/verified-account`,
+            .get(`${this.path}/authentication/verify-account`,
                 paramMiddleware(VerifiedAccountWithParametersDto), this.verifiedAccount)
+
+            // forgot password
+            .post(`${this.path}/authentication/request-forgot-password`,
+                validationMiddleware(RequestChangePasswordDto), this.requestForgotPassword)
+            .post(`${this.path}/authentication/forgot-password`,
+                validationMiddleware(VerifiedAccountDto), this.forgotPassword)
 
             // oauth 2.0
             .get(`${this.path}/authentication/google`, passport.authenticate('google', {scope: ['profile', 'email']}))
@@ -74,7 +81,7 @@ export default class AuthenticationController extends ControllerBase implements 
                 if (sendEmail) {
                     response.send({
                         data: {},
-                        message: "Hãy kiểm tra email của bạn để kích hoạt tài khoản",
+                        message: "Chúng tôi đã gửi một mã vào địa chỉ email của bạn. Hãy nhập mã đó để xác minh tài khoản",
                         status: 200,
                         success: true,
                     });
@@ -119,7 +126,7 @@ export default class AuthenticationController extends ControllerBase implements 
                             username: user.username,
                             email: user.email
                         },
-                        message: "Vui lòng kích hoạt tài khoản của bạn trước khi đăng nhập",
+                        message: "Vui lòng xác minh tài khoản của bạn trước khi đăng nhập",
                         status: 400,
                         success: false,
                     });
@@ -141,7 +148,7 @@ export default class AuthenticationController extends ControllerBase implements 
                 if (sendEmail) {
                     response.send({
                         data: {},
-                        message: "Hãy kiểm tra email của bạn để kích hoạt tài khoản",
+                        message: "Chúng tôi đã gửi một mã vào địa chỉ email của bạn. Hãy nhập mã đó để xác minh tài khoản",
                         status: 200,
                         success: true,
                     });
@@ -179,7 +186,7 @@ export default class AuthenticationController extends ControllerBase implements 
                             data: {
                                 ...userTransformer(user.toJSON()),
                             },
-                            message: "Tài khoản của bạn đã được xác thực thành công, xin mời đăng nhập",
+                            message: "Tài khoản của bạn đã được xác minh thành công, xin mời đăng nhập",
                             status: 200,
                             success: true,
                         });
@@ -192,6 +199,35 @@ export default class AuthenticationController extends ControllerBase implements 
             } else {
                 next(new UserNotFoundException());
             }
+        } catch (e) {
+            next(e)
+        }
+    };
+
+    private requestForgotPassword = async (request: Request, response: Response, next: NextFunction) => {
+        try {
+            const user = await userModel.findOne({email: request.body.email});
+            if (user) {
+                const sendEmail = await this.sendMailService.sendMailForgotPassword(user);
+                if (sendEmail) {
+                    response.send({
+                        data: {},
+                        message: "Chúng tôi đã gửi một mã vào địa chỉ email của bạn. Hãy nhập mã đó để đặt lại mật khẩu",
+                        status: 200,
+                        success: true,
+                    });
+                } else {
+                    next(new CannotSendEmailException())
+                }
+            }
+        } catch (e) {
+            next(e)
+        }
+    };
+
+    private forgotPassword = async (request: Request, response: Response, next: NextFunction) => {
+        try {
+            console.log(111)
         } catch (e) {
             next(e)
         }

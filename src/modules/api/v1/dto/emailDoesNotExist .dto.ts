@@ -5,13 +5,16 @@ import {
     ValidatorConstraint,
     ValidatorConstraintInterface
 } from "class-validator";
-import userModel from "../../../../../../models/user.model";
+import userModel from "../../../../models/user.model";
 
 @ValidatorConstraint({async: true})
 export class EmailDoesNotExistConstraint implements ValidatorConstraintInterface {
     public async validate(email: string, args: ValidationArguments) {
-        const user = await userModel.findOne({email});
-        return !!user;
+        if (email) {
+            const user = await userModel.findOne({email});
+            return !!user;
+        }
+        return true
     }
 }
 

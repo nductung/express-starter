@@ -43,15 +43,41 @@ class SendMailService {
         const html = `
                         <p>Chào bạn <strong>${user.username}</strong>,</p>
                         <p>Bạn đã đăng kí tài khoản của bạn trên hệ thống.</p>
-                        <p>Mã xác nhận của bạn là: ${otp}</p>
-                        <p>Hãy điền mã xác nhận để hoàn tất quá trình này,</p>
-                        <p>hoặc nhấp vào liên kết để xác thực tài khoản của bạn
+                        <p>Mã xác minh của bạn là: ${otp}</p>
+                        <p>Hãy điền mã xác minh để hoàn tất quá trình này,</p>
+                        <p>hoặc nhấp vào liên kết để xác minh tài khoản của bạn
                             <a href="http://localhost:4000/api/v1/authentication/verified-account?email=${user.email}&otp=${otp}">Verify your account</a>
                         </p>
                         <p>Trân trọng,</p>
                         <p>BQT Team.</p>
                     `;
-        const sendEmail = await this.sendMail(user.email, html, `[ ] Mã code xác thực tài khoản ${user.username}`);
+        const sendEmail = await this.sendMail(user.email, html, `[ ] Mã xác minh tài khoản ${user.username}`);
+        return !!sendEmail;
+    }
+
+    async sendMailForgotPassword(user: InterfaceModelUser) {
+        const key = `forgot-password-${user.username}`;
+        const otp = Math.floor(Math.random() * 999999 - 100000 + 1) + 100000;
+        this.globals.__redis.set(key, otp);
+        this.globals.__redis.expire(key, 900);
+        const html = `
+                        <p>Chào bạn <strong>${user.username}</strong>,</p>
+                        <p>Mã xác minh của bạn là: ${otp}</p>
+                        <a href="http://localhost:4000/api/v1/authentication/forgot-password?email=${user.email}&otp=${otp}"
+                        style="color: white;
+                            padding: .75rem 1.1875rem;
+                            border-radius: 8px;
+                            border: none;
+                            text-decoration: none;
+                            text-transform: uppercase;
+                            font-weight: bold;
+                            background-image: linear-gradient(90deg,#2ce69b,#00d68f);">
+                            Verify your account
+                            </a>
+                        <p>Trân trọng,</p>
+                        <p>BQT Team.</p>
+                    `;
+        const sendEmail = await this.sendMail(user.email, html, `[ ] Mã xác minh quên mật khẩu tài khoản ${user.username}`);
         return !!sendEmail;
     }
 
