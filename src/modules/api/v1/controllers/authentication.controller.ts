@@ -18,8 +18,9 @@ import SendMailService from "../../../../services/sendMail.service";
 import CannotSendEmailException from "../../../../exceptions/CannotSendEmail.exception";
 import AuthenticationTokenException from "../../../../exceptions/AuthenticationTokenException";
 import VerifiedAccountException from "../../../../exceptions/VerifiedAccountException";
-import VerifiedAccountDto from "../dto/authentication/verified-account/verifiedAccount.dto";
+import RequestVerifiedAccountDto from "../dto/authentication/verified-account/requestVerifiedAccount.dto";
 import UserNotFoundException from "../../../../exceptions/UserNotFoundException";
+import VerifiedAccountDto from "../dto/authentication/verified-account/verifiedAccount.dto";
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public tokenService = new TokenService();
@@ -40,8 +41,9 @@ export default class AuthenticationController extends ControllerBase implements 
 
             // verified account
             .post(`${this.path}/authentication/request-verified-account`,
-                validationMiddleware(VerifiedAccountDto), this.requestVerifiedAccount)
-            .get(`${this.path}/authentication/verified-account`, this.verifiedAccount)
+                validationMiddleware(RequestVerifiedAccountDto), this.requestVerifiedAccount)
+            .get(`${this.path}/authentication/verified-account`,
+                validationMiddleware(VerifiedAccountDto), this.verifiedAccount)
 
             // oauth 2.0
             .get(`${this.path}/authentication/google`, passport.authenticate('google', {scope: ['profile', 'email']}))
