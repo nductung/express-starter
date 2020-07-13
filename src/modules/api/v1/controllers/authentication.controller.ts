@@ -21,6 +21,8 @@ import VerifiedAccountException from "../../../../exceptions/VerifiedAccountExce
 import RequestVerifiedAccountDto from "../dto/authentication/verified-account/requestVerifiedAccount.dto";
 import UserNotFoundException from "../../../../exceptions/UserNotFoundException";
 import VerifiedAccountDto from "../dto/authentication/verified-account/verifiedAccount.dto";
+import paramMiddleware from "../../../../middleware/param.middleware";
+import VerifiedAccountWithParametersDto from "../dto/authentication/verified-account/verifiedAccountWithParameters.dto";
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public tokenService = new TokenService();
@@ -42,8 +44,10 @@ export default class AuthenticationController extends ControllerBase implements 
             // verified account
             .post(`${this.path}/authentication/request-verified-account`,
                 validationMiddleware(RequestVerifiedAccountDto), this.requestVerifiedAccount)
-            .get(`${this.path}/authentication/verified-account`,
+            .post(`${this.path}/authentication/verified-account`,
                 validationMiddleware(VerifiedAccountDto), this.verifiedAccount)
+            .get(`${this.path}/authentication/verified-account`,
+                paramMiddleware(VerifiedAccountWithParametersDto), this.verifiedAccount)
 
             // oauth 2.0
             .get(`${this.path}/authentication/google`, passport.authenticate('google', {scope: ['profile', 'email']}))
@@ -153,10 +157,18 @@ export default class AuthenticationController extends ControllerBase implements 
 
     private verifiedAccount = async (request: Request, response: Response, next: NextFunction) => {
         try {
-            const key = `verify-account-${request.body.username}`;
+            let data;
+            if (request.method === 'POST') {
+                data = request.body;
+            } else if (request.method === 'GET') {
+                data = request.query;
+            }
+            const key = `verify-account-${data.username}`;
             const otp = await this.globals.__redis.getAsync(key);
-            if (request.body.otp === otp) {
-                const user = await userModel.findOne({username: request.body.username});
+            if (otp === data.otp) {
+                const user = await userModel.findOne({
+                    username: data.username
+                });
                 if (user) {
                     if (user.confirmed) {
                         next(new VerifiedAccountException());
