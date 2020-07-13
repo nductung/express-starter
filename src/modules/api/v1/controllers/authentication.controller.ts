@@ -153,10 +153,10 @@ export default class AuthenticationController extends ControllerBase implements 
 
     private verifiedAccount = async (request: Request, response: Response, next: NextFunction) => {
         try {
-            const otp = `verify-account-${request.body.otp.trim()}`;
-            const username = await this.globals.__redis.getAsync(otp);
-            if (username) {
-                const user = await userModel.findOne({username});
+            const key = `verify-account-${request.body.username}`;
+            const otp = await this.globals.__redis.getAsync(key);
+            if (request.body.otp === otp) {
+                const user = await userModel.findOne({username: request.body.username});
                 if (user) {
                     if (user.confirmed) {
                         next(new VerifiedAccountException());
@@ -166,7 +166,7 @@ export default class AuthenticationController extends ControllerBase implements 
                         await user.save();
 
                         //
-                        this.globals.__redis.del(otp);
+                        this.globals.__redis.del(key);
 
                         response.send({
                             data: {
