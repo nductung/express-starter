@@ -5,6 +5,7 @@ import TokenService from "./token.service";
 class SendMailService {
 
     public tokenService = new TokenService();
+    public globals: any = global;
 
     public sendMail(mailTo: any, message: string, subject: string) {
         const port: number = parseInt(process.env.MAIL_PORT ? process.env.MAIL_PORT.toString() : "587", 10);
@@ -38,6 +39,8 @@ class SendMailService {
 
     async sendMailVerifiedAccount(user: InterfaceModelUser) {
         const otp = Math.floor(Math.random() * 999999 - 100000 + 1) + 100000;
+        this.globals.__redis.set(otp.toString(), user.username);
+        this.globals.__redis.expire(otp.toString(), 900);
         const token = this.tokenService.createEmailToken(user).token;
         const html = `
                         <p>Chào bạn <strong>${user.username}</strong>,</p>

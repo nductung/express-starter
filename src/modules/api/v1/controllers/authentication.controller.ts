@@ -16,10 +16,10 @@ import * as passport from "passport";
 import CurrentPasswordIncorrectException from "../../../../exceptions/CurrentPasswordIncorrectException";
 import SendMailService from "../../../../services/sendMail.service";
 import CannotSendEmailException from "../../../../exceptions/CannotSendEmail.exception";
-import * as jwt from "jsonwebtoken";
 import AuthenticationTokenException from "../../../../exceptions/AuthenticationTokenException";
 import VerifiedAccountException from "../../../../exceptions/VerifiedAccountException";
 import VerifiedAccountDto from "../dto/authentication/verified-account/verifiedAccount.dto";
+import UserNotFoundException from "../../../../exceptions/UserNotFoundException";
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public tokenService = new TokenService();
@@ -41,7 +41,7 @@ export default class AuthenticationController extends ControllerBase implements 
             // verified account
             .post(`${this.path}/authentication/request-verified-account`,
                 validationMiddleware(VerifiedAccountDto), this.requestVerifiedAccount)
-            .get(`${this.path}/authentication/verified-account/:token`, this.verifiedAccount)
+            .get(`${this.path}/authentication/verified-account`, this.verifiedAccount)
 
             // oauth 2.0
             .get(`${this.path}/authentication/google`, passport.authenticate('google', {scope: ['profile', 'email']}))
@@ -151,25 +151,28 @@ export default class AuthenticationController extends ControllerBase implements 
 
     private verifiedAccount = async (request: Request, response: Response, next: NextFunction) => {
         try {
-            const token = request.params.token;
-            const secret: string = process.env.EMAIL_SECRET;
-            const verificationResponse: any = jwt.verify(token, secret);
-            const user = await userModel.findById(verificationResponse._id);
-            if (user) {
-                if (user.confirmed) {
-                    next(new VerifiedAccountException());
+            const token = request.body.otp;
+            const username = await this.globals.__redis.getAsync(token);
+            if (username) {
+                const user = await userModel.findOne({username});
+                if (user) {
+                    if (user.confirmed) {
+                        next(new VerifiedAccountException());
+                    } else {
+                        user.confirmed = true;
+                        user.updatedAt = new Date();
+                        await user.save();
+                        response.send({
+                            data: {
+                                ...userTransformer(user.toJSON()),
+                            },
+                            message: "Tài khoản của bạn đã được xác thực thành công, xin mời đăng nhập",
+                            status: 200,
+                            success: true,
+                        });
+                    }
                 } else {
-                    user.confirmed = true;
-                    user.updatedAt = new Date();
-                    await user.save();
-                    response.send({
-                        data: {
-                            ...userTransformer(user.toJSON()),
-                        },
-                        message: "Tài khoản của bạn đã được xác thực thành công, xin mời đăng nhập",
-                        status: 200,
-                        success: true,
-                    });
+                    next(new UserNotFoundException());
                 }
             } else {
                 next(new AuthenticationTokenException());
