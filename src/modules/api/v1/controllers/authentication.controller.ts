@@ -233,7 +233,19 @@ export default class AuthenticationController extends ControllerBase implements 
                 const key = `forgot-password-${user.username}`;
                 const otp = await this.globals.__redis.getAsync(key);
                 if (otp === request.body.otp) {
-                    console.log(111);
+                    user.password = await bcrypt.hash(request.body.newPassword, 10);
+                    user.updatedAt = new Date();
+                    await user.save();
+
+                    //
+                    this.globals.__redis.del(key);
+
+                    response.send({
+                        data: {},
+                        message: "Thay đỏi mật khẩu thành công",
+                        status: 200,
+                        success: true,
+                    });
                 } else {
                     next(new AuthenticationTokenException());
                 }
