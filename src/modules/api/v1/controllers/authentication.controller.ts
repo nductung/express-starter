@@ -65,7 +65,6 @@ export default class AuthenticationController extends ControllerBase implements 
                 validationMiddleware(ChangePasswordDto), this.changePassword)
     };
 
-
     private registration = async (request: Request, response: Response, next: NextFunction) => {
         try {
             const userData: RegisterDto = request.body;
