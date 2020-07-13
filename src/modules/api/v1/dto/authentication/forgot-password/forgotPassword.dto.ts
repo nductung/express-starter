@@ -1,15 +1,16 @@
-import {IsString, MinLength} from "class-validator";
-import {NewPasswordDto} from "./newPassword.dto";
+import {IsString, MinLength} from 'class-validator';
 import {ConfirmPasswordDto} from "../confirmPassword";
 
-class ChangePasswordDto {
+class ForgotPasswordDto {
 
     @IsString()
-    public currentPassword!: string;
+    public email!: string;
+
+    @IsString()
+    public otp!: string;
 
     @IsString()
     @MinLength(8, {message: 'Mật khẩu phải có tối thiểu 8 ký tự'})
-    @NewPasswordDto({message: 'Mật khẩu mới phải khác với mật khẩu hiện tại'})
     public newPassword!: string;
 
     @IsString()
@@ -19,4 +20,4 @@ class ChangePasswordDto {
 
 }
 
-export default ChangePasswordDto
+export default ForgotPasswordDto;

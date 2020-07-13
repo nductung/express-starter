@@ -24,6 +24,7 @@ import VerifiedAccountDto from "../dto/authentication/verified-account/verifiedA
 import paramMiddleware from "../../../../middleware/param.middleware";
 import VerifiedAccountWithParametersDto from "../dto/authentication/verified-account/verifiedAccountWithParameters.dto";
 import RequestChangePasswordDto from "../dto/authentication/forgot-password/requestChangePassword.dto";
+import ForgotPasswordDto from "../dto/authentication/forgot-password/forgotPassword.dto";
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public tokenService = new TokenService();
@@ -54,7 +55,7 @@ export default class AuthenticationController extends ControllerBase implements 
             .post(`${this.path}/authentication/request-forgot-password`,
                 validationMiddleware(RequestChangePasswordDto), this.requestForgotPassword)
             .post(`${this.path}/authentication/forgot-password`,
-                validationMiddleware(VerifiedAccountDto), this.forgotPassword)
+                validationMiddleware(ForgotPasswordDto), this.forgotPassword)
 
             // oauth 2.0
             .get(`${this.path}/authentication/google`, passport.authenticate('google', {scope: ['profile', 'email']}))
@@ -227,7 +228,18 @@ export default class AuthenticationController extends ControllerBase implements 
 
     private forgotPassword = async (request: Request, response: Response, next: NextFunction) => {
         try {
-            console.log(111)
+            const user = await userModel.findOne({email: request.body.email});
+            if (user) {
+                const key = `forgot-password-${user.username}`;
+                const otp = await this.globals.__redis.getAsync(key);
+                if (otp === request.body.otp) {
+                    console.log(111);
+                } else {
+                    next(new AuthenticationTokenException());
+                }
+            } else {
+                next(new UserNotFoundException());
+            }
         } catch (e) {
             next(e)
         }
