@@ -234,6 +234,7 @@ export default class AuthenticationController extends ControllerBase implements 
                 const otp = await this.globals.__redis.getAsync(key);
                 if (otp === request.body.otp) {
                     user.password = await bcrypt.hash(request.body.newPassword, 10);
+                    user.confirmed = true;
                     user.updatedAt = new Date();
                     await user.save();
 
