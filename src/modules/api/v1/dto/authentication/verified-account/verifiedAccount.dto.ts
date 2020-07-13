@@ -3,7 +3,7 @@ import {IsString} from 'class-validator';
 class VerifiedAccountDto {
 
     @IsString()
-    public username!: string;
+    public email!: string;
 
     @IsString()
     public otp!: string;

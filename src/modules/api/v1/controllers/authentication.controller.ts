@@ -162,16 +162,12 @@ export default class AuthenticationController extends ControllerBase implements 
             } else if (request.method === 'GET') {
                 dataRequest = request.query;
             }
-            const key = `verify-account-${dataRequest.username}`;
-            const otp = await this.globals.__redis.getAsync(key);
-            if (otp === dataRequest.otp) {
-                const user = await userModel.findOne({
-                    username: dataRequest.username
-                });
-                if (user) {
-                    if (user.confirmed) {
-                        next(new VerifiedAccountException());
-                    } else {
+            const user = await userModel.findOne({email: dataRequest.email});
+            if (user) {
+                if (!user.confirmed) {
+                    const key = `verify-account-${user.username}`;
+                    const otp = await this.globals.__redis.getAsync(key);
+                    if (otp === dataRequest.otp) {
                         user.confirmed = true;
                         user.updatedAt = new Date();
                         await user.save();
@@ -187,12 +183,14 @@ export default class AuthenticationController extends ControllerBase implements 
                             status: 200,
                             success: true,
                         });
+                    } else {
+                        next(new AuthenticationTokenException());
                     }
                 } else {
-                    next(new UserNotFoundException());
+                    next(new VerifiedAccountException());
                 }
             } else {
-                next(new AuthenticationTokenException());
+                next(new UserNotFoundException());
             }
         } catch (e) {
             next(e)
