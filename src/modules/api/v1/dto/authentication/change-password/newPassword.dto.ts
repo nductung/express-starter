@@ -9,7 +9,10 @@ import {
 @ValidatorConstraint({async: true})
 export class NewPasswordConstraint implements ValidatorConstraintInterface {
     public validate(newPassword: string, args: ValidationArguments) {
-        return (args.object as any).currentPassword !== newPassword;
+        if (newPassword) {
+            return (args.object as any).currentPassword !== newPassword;
+        }
+        return true
     }
 }
 

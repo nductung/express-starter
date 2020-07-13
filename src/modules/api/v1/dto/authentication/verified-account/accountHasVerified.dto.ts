@@ -10,8 +10,11 @@ import userModel from "../../../../../../models/user.model";
 @ValidatorConstraint({async: true})
 export class AccountHasVerifiedConstraint implements ValidatorConstraintInterface {
     public async validate(email: string, args: ValidationArguments) {
-        const user = await userModel.findOne({email});
-        return !(user && user.confirmed);
+        if (email) {
+            const user = await userModel.findOne({email});
+            return !(user && user.confirmed);
+        }
+        return true
     }
 }
 

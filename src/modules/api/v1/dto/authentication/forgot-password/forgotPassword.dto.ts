@@ -1,20 +1,24 @@
-import {IsString, MinLength} from 'class-validator';
+import {IsNotEmpty, IsString, MinLength} from 'class-validator';
 import {ConfirmPasswordDto} from "../confirmPassword";
 
 class ForgotPasswordDto {
 
+    @IsNotEmpty()
     @IsString()
     public email!: string;
 
+    @IsNotEmpty()
     @IsString()
     public otp!: string;
 
+    @IsNotEmpty()
     @IsString()
-    @MinLength(8, {message: 'Mật khẩu phải có tối thiểu 8 ký tự'})
+    @MinLength(8)
     public newPassword!: string;
 
+    @IsNotEmpty()
     @IsString()
-    @MinLength(8, {message: 'Mật khẩu xác nhận phải có tối thiểu 8 ký tự'})
+    @MinLength(8)
     @ConfirmPasswordDto({message: 'Mật khẩu mới và mật khẩu xác nhận không giống nhau'})
     public confirmPassword!: string;
 

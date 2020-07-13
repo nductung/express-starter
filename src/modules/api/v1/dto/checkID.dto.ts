@@ -1,6 +1,8 @@
-import {IsMongoId} from 'class-validator';
+import {IsMongoId, IsNotEmpty} from 'class-validator';
 
 class IDDto {
+
+    @IsNotEmpty()
     @IsMongoId()
     public id!: string;
 }
