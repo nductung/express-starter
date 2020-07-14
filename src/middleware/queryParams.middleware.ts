@@ -8,7 +8,8 @@ function queryParamsMiddleware<T>(type: any, skipMissingProperties = false): Req
         validate(plainToClass(type, req.query), {skipMissingProperties})
             .then((errors: ValidationError[]) => {
                 if (errors.length > 0) {
-                    const message = errors.map((error: ValidationError) => Object.values(error.constraints)).join(', ');
+                    // const message = errors.map((error: ValidationError) => Object.values(error.constraints)).join(', ');
+                    const message = Object.values(errors[0].constraints)[0];
                     next(new HttpException(400, message));
                 } else {
                     next();
