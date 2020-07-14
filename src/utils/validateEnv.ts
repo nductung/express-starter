@@ -4,7 +4,6 @@ function validateEnv() {
     cleanEnv(process.env, {
         PORT: port(),
         JWT_SECRET: str(),
-        EMAIL_SECRET: str(),
 
         TOKEN_LIFE_TIME: num(),
         REFRESH_TOKEN_LIFE_TIME: num(),
