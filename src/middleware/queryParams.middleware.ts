@@ -3,9 +3,9 @@ import {validate, ValidationError} from 'class-validator';
 import {RequestHandler} from 'express';
 import HttpException from '../exceptions/HttpException';
 
-function paramMiddleware<T>(type: any, skipMissingProperties = false): RequestHandler {
+function queryParamsMiddleware<T>(type: any, skipMissingProperties = false): RequestHandler {
     return (req, res, next) => {
-        validate(plainToClass(type, req.params), {skipMissingProperties})
+        validate(plainToClass(type, req.query), {skipMissingProperties})
             .then((errors: ValidationError[]) => {
                 if (errors.length > 0) {
                     const message = errors.map((error: ValidationError) => Object.values(error.constraints)).join(', ');
@@ -17,4 +17,4 @@ function paramMiddleware<T>(type: any, skipMissingProperties = false): RequestHa
     };
 }
 
-export default paramMiddleware;
+export default queryParamsMiddleware;

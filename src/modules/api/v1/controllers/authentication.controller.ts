@@ -21,10 +21,10 @@ import VerifiedAccountException from "../../../../exceptions/VerifiedAccountExce
 import RequestVerifiedAccountDto from "../dto/authentication/verified-account/requestVerifiedAccount.dto";
 import UserNotFoundException from "../../../../exceptions/UserNotFoundException";
 import VerifiedAccountDto from "../dto/authentication/verified-account/verifiedAccount.dto";
-import paramMiddleware from "../../../../middleware/param.middleware";
 import VerifiedAccountWithParametersDto from "../dto/authentication/verified-account/verifiedAccountWithParameters.dto";
 import RequestChangePasswordDto from "../dto/authentication/forgot-password/requestChangePassword.dto";
 import ForgotPasswordDto from "../dto/authentication/forgot-password/forgotPassword.dto";
+import queryParamsMiddleware from "../../../../middleware/queryParams.middleware";
 
 export default class AuthenticationController extends ControllerBase implements Controller {
     public tokenService = new TokenService();
@@ -49,7 +49,7 @@ export default class AuthenticationController extends ControllerBase implements 
             .post(`${this.path}/authentication/verify-account`,
                 validationMiddleware(VerifiedAccountDto), this.verifiedAccount)
             .get(`${this.path}/authentication/verify-account`,
-                paramMiddleware(VerifiedAccountWithParametersDto), this.verifiedAccount)
+                queryParamsMiddleware(VerifiedAccountWithParametersDto), this.verifiedAccount)
 
             // forgot password
             .post(`${this.path}/authentication/request-forgot-password`,
