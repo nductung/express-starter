@@ -8,7 +8,7 @@ interface InterfaceModelUser {
     password: string;
     role: string,
     picture: string,
-    male: string,
+    gender: string,
     phone: string,
     confirmed: boolean,
     ref_facebook: string,

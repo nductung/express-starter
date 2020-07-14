@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
         password: {type: String, required: true},
         role: {type: String, required: true, default: 'user'},
         picture: {type: String, required: false, default: undefined},
-        male: {type: String, required: false, default: undefined},
+        gender: {type: String, required: false, default: undefined},
         phone: {type: String, required: false, default: undefined},
         confirmed: {type: Boolean, required: true, default: false},
         ref_facebook: {type: Number, default: undefined},

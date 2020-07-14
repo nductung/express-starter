@@ -322,6 +322,7 @@ export default class AuthenticationController extends ControllerBase implements 
                 userData.email = await userModel.findOne({email: data.email})
                     ? `no-email-${Math.floor(Math.random() * 999999 - 100000 + 1) + 100000}@email.com`
                     : data.email;
+                userData.gender = data.gender;
                 userData.ref_facebook = data.id;
 
                 await userData.save();
