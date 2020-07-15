@@ -111,7 +111,7 @@ temp/
 #
 #data/
 .env
-.env.production
+#.env.production
 .idea/
 yarn.lock
 package-lock.json
