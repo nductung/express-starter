@@ -52,22 +52,34 @@ export default class AdminAuthenticationController extends ControllerBase implem
                 user.get('password', null, {getters: false}),
             );
             if (isPasswordMatching) {
-                const tokenData = this.tokenService.createToken(user, true);
-                const refreshTokenData = this.tokenService.createToken(user, false);
-                const valueToken = {
-                    accessToken: tokenData.token,
-                    refreshToken: refreshTokenData.token,
-                };
+                if (user.confirmed) {
+                    const tokenData = this.tokenService.createToken(user, true);
+                    const refreshTokenData = this.tokenService.createToken(user, false);
+                    const valueToken = {
+                        accessToken: tokenData.token,
+                        refreshToken: refreshTokenData.token,
+                    };
 
-                response.send({
-                    data: {
-                        ...userTransformer(user.toJSON()),
-                        ...valueToken
-                    },
-                    message: "Đăng nhập thành công",
-                    status: 200,
-                    success: true,
-                });
+                    response.send({
+                        data: {
+                            ...userTransformer(user.toJSON()),
+                            ...valueToken
+                        },
+                        message: "Đăng nhập thành công",
+                        status: 200,
+                        success: true,
+                    });
+                } else {
+                    response.send({
+                        data: {
+                            username: user.username,
+                            email: user.email
+                        },
+                        message: "Vui lòng xác minh tài khoản của bạn trước khi đăng nhập",
+                        status: 400,
+                        success: false,
+                    });
+                }
             } else {
                 next(new WrongCredentialsException());
             }

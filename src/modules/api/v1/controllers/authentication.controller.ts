@@ -131,7 +131,6 @@ export default class AuthenticationController extends ControllerBase implements 
                         status: 400,
                         success: false,
                     });
-                    // next(new AccountNotActiveException());
                 }
             } else {
                 next(new WrongCredentialsException());
