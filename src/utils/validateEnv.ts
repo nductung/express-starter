@@ -5,6 +5,7 @@ function validateEnv() {
         NODE_ENV: str(),
         PORT: port(),
         JWT_SECRET: str(),
+        BASE_URL: str(),
 
         TOKEN_LIFE_TIME: num(),
         REFRESH_TOKEN_LIFE_TIME: num(),
