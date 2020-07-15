@@ -4,9 +4,9 @@
   "description": "",
   "main": "src/server.ts",
   "scripts": {
-    "start": "nodemon --exec ts-node src/server.ts",
+    "start": "nodemon --exec NODE_ENV=production env-cmd -f .env.production ts-node src/server.ts",
     "dev": "nodemon --exec ts-node src/server.ts",
-    "prod": "nodemon --exec NODE_ENV=prod env-cmd -f .env.prod ts-node src/server.ts",
+    "prod": "nodemon --exec NODE_ENV=prod env-cmd -f .env.production ts-node src/server.ts",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "jest"
   },
