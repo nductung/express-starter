@@ -45,7 +45,8 @@
     "@types/redis": "^2.8.24",
     "redis": "^3.0.2",
     "@types/bluebird": "^3.5.32",
-    "bluebird": "^3.7.2"
+    "bluebird": "^3.7.2",
+    "ts-node": "^8.6.2"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.2",
@@ -61,7 +62,6 @@
     "nodemon": "^2.0.2",
     "supertest": "^4.0.2",
     "ts-jest": "^25.2.0",
-    "ts-node": "^8.6.2",
     "tslint": "^6.0.0",
     "tslint-config-airbnb": "^5.11.2",
     "typescript": "^3.7.5"
