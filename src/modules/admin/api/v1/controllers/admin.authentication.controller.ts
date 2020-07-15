@@ -92,7 +92,7 @@ export default class AdminAuthenticationController extends ControllerBase implem
         try {
             const user = await userModel.findById(this.getProfile()._id);
             response.send({
-                data: {...userTransformer(user.toJSON()),},
+                data: {...userTransformer(user.toJSON())},
                 message: "",
                 status: 200,
                 success: true,

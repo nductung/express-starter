@@ -38,39 +38,31 @@ export default class AuthenticationController extends ControllerBase implements 
 
     private initializeRoutes = () => {
         this.router
-            // register
             .post(`${this.path}/authentication/register`, validationMiddleware(RegisterDto), this.registration)
-            // login
             .post(`${this.path}/authentication/login`, validationMiddleware(LoginDto), this.loggingIn)
-
-            // verified account
-            .post(`${this.path}/authentication/request-verify-account`,
-                validationMiddleware(RequestVerifiedAccountDto), this.requestVerifiedAccount)
-            .post(`${this.path}/authentication/verify-account`,
-                validationMiddleware(VerifiedAccountDto), this.verifiedAccount)
-            .get(`${this.path}/authentication/verify-account`,
-                queryParamsMiddleware(VerifiedAccountWithParametersDto), this.verifiedAccount)
-
-            // forgot password
-            .post(`${this.path}/authentication/request-forgot-password`,
-                validationMiddleware(RequestChangePasswordDto), this.requestForgotPassword)
-            .post(`${this.path}/authentication/forgot-password`,
-                validationMiddleware(ForgotPasswordDto), this.forgotPassword)
+            .get(`${this.path}/current`, authMiddleware(Role.User), this.getCurrent)
 
             // oauth 2.0
             .get(`${this.path}/authentication/google`, passport.authenticate('google', {scope: ['profile', 'email']}))
-            .get(`${this.path}/authentication/google/callback`,
-                passport.authenticate('google', {failureRedirect: `/`}), this.loginWithGoogle)
+            // tslint:disable-next-line:max-line-length
+            .get(`${this.path}/authentication/google/callback`, passport.authenticate('google', {failureRedirect: `/`}), this.loginWithGoogle)
             .get(`${this.path}/authentication/facebook`, passport.authenticate('facebook', {scope: 'email'}))
-            .get(`${this.path}/authentication/facebook/callback`,
-                passport.authenticate('facebook', {failureRedirect: '/'}), this.loginWithFacebook)
+            // tslint:disable-next-line:max-line-length
+            .get(`${this.path}/authentication/facebook/callback`, passport.authenticate('facebook', {failureRedirect: '/'}), this.loginWithFacebook)
 
-            // get profile
-            .get(`${this.path}/current`, authMiddleware(Role.User), this.getCurrent)
+            // verified account
+            // tslint:disable-next-line:max-line-length
+            .post(`${this.path}/authentication/request-verify-account`, validationMiddleware(RequestVerifiedAccountDto), this.requestVerifiedAccount)
+            .post(`${this.path}/authentication/verify-account`, validationMiddleware(VerifiedAccountDto), this.verifiedAccount)
+            // tslint:disable-next-line:max-line-length
+            .get(`${this.path}/authentication/verify-account`, queryParamsMiddleware(VerifiedAccountWithParametersDto), this.verifiedAccount)
 
-            // change password
-            .post(`${this.path}/authentication/change-password`, authMiddleware(Role.User),
-                validationMiddleware(ChangePasswordDto), this.changePassword)
+            // password
+            // tslint:disable-next-line:max-line-length
+            .post(`${this.path}/authentication/request-forgot-password`, validationMiddleware(RequestChangePasswordDto), this.requestForgotPassword)
+            .post(`${this.path}/authentication/forgot-password`, validationMiddleware(ForgotPasswordDto), this.forgotPassword)
+            // tslint:disable-next-line:max-line-length
+            .post(`${this.path}/authentication/change-password`, authMiddleware(Role.User), validationMiddleware(ChangePasswordDto), this.changePassword)
     };
 
     private registration = async (request: Request, response: Response, next: NextFunction) => {
@@ -140,6 +132,114 @@ export default class AuthenticationController extends ControllerBase implements 
         }
     };
 
+    private getCurrent = async (request: Request, response: Response, next: NextFunction) => {
+        try {
+            const user = await userModel.findById(this.getProfile()._id);
+            response.send({
+                data: {...userTransformer(user.toJSON())},
+                message: "",
+                status: 200,
+                success: true,
+            });
+        } catch (e) {
+            next(e);
+        }
+    };
+
+    private loginWithGoogle = async (request: any, response: Response, next: NextFunction) => {
+        try {
+            const data = request.user._json;
+            const user = await userModel.findOne({email: data.email});
+            if (user) {
+                if (!user.picture) {
+                    user.picture = data.picture;
+                }
+                await user.save();
+
+                response.send({
+                    data: {
+                        ...userTransformer(user.toJSON()),
+                        ...this.tokenService.createValueToken(user)
+                    },
+                    message: "Đăng nhập thành công",
+                    status: 200,
+                    success: true,
+                })
+            } else {
+                const userData = new userModel();
+                userData.firstName = data.given_name;
+                userData.lastName = data.family_name;
+                userData.username = await this.authenticationService.usernameGenerator(data.email);
+                userData.picture = data.picture;
+                userData.password = await bcrypt.hash('12356890', 10);
+                userData.email = data.email;
+
+                await userData.save();
+
+                response.send({
+                    data: {
+                        ...userTransformer(userData.toJSON()),
+                        ...this.tokenService.createValueToken(userData)
+                    },
+                    message: "Đăng nhập thành công",
+                    status: 200,
+                    success: true,
+                });
+            }
+        } catch (e) {
+            next(e)
+        }
+    };
+
+    private loginWithFacebook = async (request: any, response: Response, next: NextFunction) => {
+        try {
+            const data = request.user._json;
+            const user = await userModel.findOne({ref_facebook: data.id});
+            if (user) {
+                if (!user.picture) {
+                    user.picture = data.picture.data.url;
+                }
+                await user.save();
+
+                response.send({
+                    data: {
+                        ...userTransformer(user.toJSON()),
+                        ...this.tokenService.createValueToken(user)
+                    },
+                    message: "Đăng nhập thành công",
+                    status: 200,
+                    success: true,
+                })
+            } else {
+                const userData = new userModel();
+                userData.firstName = data.first_name;
+                userData.lastName = data.last_name;
+                userData.username = await this.authenticationService.usernameGenerator(data.email);
+                userData.picture = data.picture.data.url;
+                userData.password = await bcrypt.hash('12356890', 10);
+                userData.email = await userModel.findOne({email: data.email})
+                    ? `no-email-${Math.floor(Math.random() * 999999 - 100000 + 1) + 100000}@email.com`
+                    : data.email;
+                userData.gender = data.gender;
+                userData.ref_facebook = data.id;
+
+                await userData.save();
+
+                response.send({
+                    data: {
+                        ...userTransformer(userData.toJSON()),
+                        ...this.tokenService.createValueToken(userData)
+                    },
+                    message: "Đăng nhập thành công",
+                    status: 200,
+                    success: true,
+                });
+            }
+        } catch (e) {
+            next(e)
+        }
+    };
+
     private requestVerifiedAccount = async (request: Request, response: Response, next: NextFunction) => {
         try {
             const user = await userModel.findOne({email: request.body.email});
@@ -178,8 +278,6 @@ export default class AuthenticationController extends ControllerBase implements 
                         user.confirmed = true;
                         user.updatedAt = new Date();
                         await user.save();
-
-                        //
                         this.globals.__redis.del(key);
 
                         response.send({
@@ -236,8 +334,6 @@ export default class AuthenticationController extends ControllerBase implements 
                     user.confirmed = true;
                     user.updatedAt = new Date();
                     await user.save();
-
-                    //
                     this.globals.__redis.del(key);
 
                     response.send({
@@ -254,104 +350,6 @@ export default class AuthenticationController extends ControllerBase implements 
             }
         } catch (e) {
             next(e)
-        }
-    };
-
-    private loginWithGoogle = async (request: any, response: Response, next: NextFunction) => {
-        try {
-            const data = request.user._json;
-            const user = await userModel.findOne({email: data.email});
-            if (user) {
-                response.send({
-                    data: {
-                        ...userTransformer(user.toJSON()),
-                        ...this.tokenService.createValueToken(user)
-                    },
-                    message: "Đăng nhập thành công",
-                    status: 200,
-                    success: true,
-                })
-            } else {
-                const userData = new userModel();
-                userData.firstName = data.given_name;
-                userData.lastName = data.family_name;
-                userData.username = await this.authenticationService.usernameGenerator(data.email);
-                userData.picture = data.picture;
-                userData.password = await bcrypt.hash('12356890', 10);
-                userData.email = data.email;
-
-                await userData.save();
-
-                response.send({
-                    data: {
-                        ...userTransformer(userData.toJSON()),
-                        ...this.tokenService.createValueToken(userData)
-                    },
-                    message: "Đăng nhập thành công",
-                    status: 200,
-                    success: true,
-                });
-            }
-        } catch (e) {
-            next(e)
-        }
-    };
-
-    private loginWithFacebook = async (request: any, response: Response, next: NextFunction) => {
-        try {
-            const data = request.user._json;
-            const user = await userModel.findOne({ref_facebook: data.id});
-            if (user) {
-                response.send({
-                    data: {
-                        ...userTransformer(user.toJSON()),
-                        ...this.tokenService.createValueToken(user)
-                    },
-                    message: "Đăng nhập thành công",
-                    status: 200,
-                    success: true,
-                })
-            } else {
-                const userData = new userModel();
-                userData.firstName = data.first_name;
-                userData.lastName = data.last_name;
-                userData.username = await this.authenticationService.usernameGenerator(data.email);
-                userData.picture = data.picture.data.url;
-                userData.password = await bcrypt.hash('12356890', 10);
-                userData.email = await userModel.findOne({email: data.email})
-                    ? `no-email-${Math.floor(Math.random() * 999999 - 100000 + 1) + 100000}@email.com`
-                    : data.email;
-                userData.gender = data.gender;
-                userData.ref_facebook = data.id;
-
-                await userData.save();
-
-                response.send({
-                    data: {
-                        ...userTransformer(userData.toJSON()),
-                        ...this.tokenService.createValueToken(userData)
-                    },
-                    message: "Đăng nhập thành công",
-                    status: 200,
-                    success: true,
-                });
-            }
-        } catch (e) {
-            next(e)
-        }
-    };
-
-    private getCurrent = async (request: Request, response: Response, next: NextFunction) => {
-        try {
-            const user = await userModel.findById(this.getProfile()._id);
-            response.send({
-                data: {...userTransformer(user.toJSON()),},
-                message: "",
-                status: 200,
-                success: true,
-            });
-        } catch (e) {
-            next(e);
         }
     };
 

@@ -4,7 +4,7 @@ import {Strategy} from "passport-google-oauth20";
 passport.use(new Strategy({
         clientID: `${process.env.GOOGLE_CLIENT_ID}`,
         clientSecret: `${process.env.GOOGLE_CLIENT_SECRET}`,
-        callbackURL: "http://localhost:4000/api/v1/authentication/google/callback"
+        callbackURL: `${process.env.BASE_URL}/api/v1/authentication/google/callback`
     },
     (accessToken, refreshToken, profile, cb) => {
         // In this example, the user's Facebook profile is supplied as the user
