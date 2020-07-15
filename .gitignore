@@ -110,7 +110,7 @@ temp/
 
 #
 #data/
-.env
+#.env
 #.env.production
 .idea/
 yarn.lock
