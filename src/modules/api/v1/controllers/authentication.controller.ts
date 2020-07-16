@@ -151,9 +151,9 @@ export default class AuthenticationController extends ControllerBase implements 
             const data = request.user._json;
             const user = await userModel.findOne({email: data.email});
             if (user) {
-                if (!user.picture) {
+                // if (!user.picture) {
                     user.picture = data.picture;
-                }
+                // }
                 await user.save();
 
                 response.send({
@@ -196,9 +196,9 @@ export default class AuthenticationController extends ControllerBase implements 
             const data = request.user._json;
             const user = await userModel.findOne({ref_facebook: data.id});
             if (user) {
-                if (!user.picture) {
+                // if (!user.picture) {
                     user.picture = data.picture.data.url;
-                }
+                // }
                 await user.save();
 
                 response.send({
