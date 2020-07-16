@@ -55,9 +55,8 @@ class App {
     }
 
     public listen() {
-        const PORT = process.env.PORT || 3000;
-        this.app.listen(PORT, () => {
-            console.log(`App listening on the port ${PORT}`);
+        this.app.listen(process.env.PORT, () => {
+            console.log(`App listening on the port ${process.env.PORT}`);
         });
     }
 

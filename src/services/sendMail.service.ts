@@ -8,14 +8,14 @@ class SendMailService {
     private generateService = new GenerateService();
 
     public sendMail(mailTo: any, message: string, subject: string) {
-        const port: number = parseInt(process.env.MAIL_PORT ? process.env.MAIL_PORT.toString() : "587", 10);
-        const host: string = process.env.MAIL_HOST || "smtp.mailtrap.io";
+        const port: number = parseInt(process.env.MAIL_PORT, 10);
+        const host: string = process.env.MAIL_HOST;
         const transporter = mailer.createTransport({
             host,
             port,
             auth: {
-                user: process.env.MAIL_USER || "933d9df2b87792",
-                pass: process.env.MAIL_PASSWORD || "c9facdc8f6bd1e",
+                user: process.env.MAIL_USER,
+                pass: process.env.MAIL_PASSWORD,
             }
         });
         const mailOptions = {
