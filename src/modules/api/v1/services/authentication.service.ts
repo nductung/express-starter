@@ -3,9 +3,11 @@ import * as bcrypt from 'bcrypt';
 import {ServiceBase} from '../../base/service.base';
 import UserAlreadyExistsException from "../../../../exceptions/UserAlreadyExistsException";
 import RegisterDto from "../dto/authentication/register.dto";
+import GenerateService from "../../../../services/generate.service";
 
 class AuthenticationService extends ServiceBase {
     public user = userModel;
+    private generateService = new GenerateService();
 
     constructor() {
         super(userModel);
@@ -30,7 +32,7 @@ class AuthenticationService extends ServiceBase {
         if (await userModel.findOne({username})) {
             let loop = true;
             do {
-                const random = username.match(/\D/g).join("") + String(Math.floor(Math.random() * (999 - 100 + 1)) + 100);
+                const random = this.generateService.generateUsername(username);
                 if (!await userModel.findOne({username: random})) {
                     loop = false;
                     return random

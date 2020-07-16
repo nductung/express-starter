@@ -1,9 +1,11 @@
 import * as mailer from "nodemailer"
 import InterfaceModelUser from "../interfaces/user.interface";
+import GenerateService from "./generate.service";
 
 class SendMailService {
 
     public globals: any = global;
+    private generateService = new GenerateService();
 
     public sendMail(mailTo: any, message: string, subject: string) {
         const port: number = parseInt(process.env.MAIL_PORT ? process.env.MAIL_PORT.toString() : "587", 10);
@@ -37,7 +39,7 @@ class SendMailService {
 
     async sendMailVerifyAccount(user: InterfaceModelUser) {
         const key = `verify-account-${user.username}`;
-        const otp = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+        const otp = this.generateService.generateOtp();
         this.globals.__redis.set(key, otp);
         this.globals.__redis.expire(key, 900);
         const html = `
@@ -57,7 +59,7 @@ class SendMailService {
 
     async sendMailForgotPassword(user: InterfaceModelUser) {
         const key = `forgot-password-${user.username}`;
-        const otp = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+        const otp = this.generateService.generateOtp();
         this.globals.__redis.set(key, otp);
         this.globals.__redis.expire(key, 900);
         const html = `
