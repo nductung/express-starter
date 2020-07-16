@@ -11,7 +11,6 @@ interface InterfaceModelUser {
     gender: string,
     phone: string,
     confirmed: boolean,
-    ref_facebook: string,
     createdAt: Date,
     updatedAt: Date,
 }

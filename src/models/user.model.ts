@@ -13,7 +13,6 @@ const userSchema = new mongoose.Schema(
         gender: {type: String, required: false, default: undefined},
         phone: {type: String, required: false, default: undefined},
         confirmed: {type: Boolean, required: true, default: false},
-        ref_facebook: {type: Number, default: undefined},
         createdAt: {type: Date, default: Date.now},
         updatedAt: {type: Date, default: Date.now}
     }, {

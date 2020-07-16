@@ -153,10 +153,10 @@ export default class AuthenticationController extends ControllerBase implements 
             const data = request.user._json;
             const user = await userModel.findOne({email: data.email});
             if (user) {
-                // if (!user.picture) {
+                if (!user.picture || user.picture !== data.picture) {
                     user.picture = data.picture;
-                // }
-                await user.save();
+                    await user.save();
+                }
 
                 response.send({
                     data: {
@@ -196,12 +196,12 @@ export default class AuthenticationController extends ControllerBase implements 
     private loginWithFacebook = async (request: any, response: Response, next: NextFunction) => {
         try {
             const data = request.user._json;
-            const user = await userModel.findOne({ref_facebook: data.id});
+            const user = await userModel.findOne({email: data.email});
             if (user) {
-                // if (!user.picture) {
+                if (!user.picture || user.picture !== data.picture) {
                     user.picture = data.picture.data.url;
-                // }
-                await user.save();
+                    await user.save();
+                }
 
                 response.send({
                     data: {
@@ -219,11 +219,7 @@ export default class AuthenticationController extends ControllerBase implements 
                 userData.username = await this.authenticationService.usernameGenerator(data.email);
                 userData.picture = data.picture.data.url;
                 userData.password = await bcrypt.hash('12356890', 10);
-                userData.email = await userModel.findOne({email: data.email})
-                    ? `no-email-${Math.floor(Math.random() * 999999 - 100000 + 1) + 100000}@email.com`
-                    : data.email;
-                userData.gender = data.gender;
-                userData.ref_facebook = data.id;
+                userData.email = data.email;
 
                 await userData.save();
 

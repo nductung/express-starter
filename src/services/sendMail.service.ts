@@ -37,7 +37,7 @@ class SendMailService {
 
     async sendMailVerifyAccount(user: InterfaceModelUser) {
         const key = `verify-account-${user.username}`;
-        const otp = Math.floor(Math.random() * 999999 - 100000 + 1) + 100000;
+        const otp = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
         this.globals.__redis.set(key, otp);
         this.globals.__redis.expire(key, 900);
         const html = `
@@ -57,7 +57,7 @@ class SendMailService {
 
     async sendMailForgotPassword(user: InterfaceModelUser) {
         const key = `forgot-password-${user.username}`;
-        const otp = Math.floor(Math.random() * 999999 - 100000 + 1) + 100000;
+        const otp = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
         this.globals.__redis.set(key, otp);
         this.globals.__redis.expire(key, 900);
         const html = `
