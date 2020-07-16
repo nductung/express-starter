@@ -73,7 +73,7 @@ export default class AuthenticationController extends ControllerBase implements 
                 const sendEmail = await this.sendMailService.sendMailVerifiedAccount(user);
                 if (sendEmail) {
                     response.send({
-                        data: {},
+                        data: null,
                         message: "Chúng tôi đã gửi một mã vào địa chỉ email của bạn. Hãy nhập mã đó để xác minh tài khoản",
                         status: 200,
                         success: true,
@@ -247,7 +247,7 @@ export default class AuthenticationController extends ControllerBase implements 
                 const sendEmail = await this.sendMailService.sendMailVerifiedAccount(user);
                 if (sendEmail) {
                     response.send({
-                        data: {},
+                        data: null,
                         message: "Chúng tôi đã gửi một mã vào địa chỉ email của bạn. Hãy nhập mã đó để xác minh tài khoản",
                         status: 200,
                         success: true,
@@ -309,7 +309,7 @@ export default class AuthenticationController extends ControllerBase implements 
                 const sendEmail = await this.sendMailService.sendMailForgotPassword(user);
                 if (sendEmail) {
                     response.send({
-                        data: {},
+                        data: null,
                         message: "Chúng tôi đã gửi một mã vào địa chỉ email của bạn. Hãy nhập mã đó để đặt lại mật khẩu",
                         status: 200,
                         success: true,
@@ -337,7 +337,7 @@ export default class AuthenticationController extends ControllerBase implements 
                     this.globals.__redis.del(key);
 
                     response.send({
-                        data: {},
+                        data: null,
                         message: "Thay đỏi mật khẩu thành công",
                         status: 200,
                         success: true,
@@ -363,7 +363,7 @@ export default class AuthenticationController extends ControllerBase implements 
                 user.updatedAt = new Date();
                 await user.save();
                 response.send({
-                    data: {},
+                    data: null,
                     message: "Thay đỏi mật khẩu thành công",
                     status: 200,
                     success: true,
