@@ -35,7 +35,7 @@ class SendMailService {
         });
     }
 
-    async sendMailVerifiedAccount(user: InterfaceModelUser) {
+    async sendMailVerifyAccount(user: InterfaceModelUser) {
         const key = `verify-account-${user.username}`;
         const otp = Math.floor(Math.random() * 999999 - 100000 + 1) + 100000;
         this.globals.__redis.set(key, otp);

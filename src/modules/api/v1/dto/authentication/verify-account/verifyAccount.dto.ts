@@ -1,6 +1,6 @@
 import {IsNotEmpty, IsString} from 'class-validator';
 
-class VerifiedAccountDto {
+class VerifyAccountDto {
 
     @IsString()
     @IsNotEmpty()
@@ -12,4 +12,4 @@ class VerifiedAccountDto {
 
 }
 
-export default VerifiedAccountDto;
+export default VerifyAccountDto;

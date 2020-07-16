@@ -1,6 +1,6 @@
 import {IsEmail, IsNotEmpty, IsString} from 'class-validator';
 
-class VerifiedAccountWithParametersDto {
+class VerifyAccountWithParametersDto {
 
     @IsEmail()
     @IsNotEmpty()
@@ -12,4 +12,4 @@ class VerifiedAccountWithParametersDto {
 
 }
 
-export default VerifiedAccountWithParametersDto;
+export default VerifyAccountWithParametersDto;

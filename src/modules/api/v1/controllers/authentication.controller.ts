@@ -17,11 +17,11 @@ import CurrentPasswordIncorrectException from "../../../../exceptions/CurrentPas
 import SendMailService from "../../../../services/sendMail.service";
 import CannotSendEmailException from "../../../../exceptions/CannotSendEmail.exception";
 import AuthenticationTokenException from "../../../../exceptions/AuthenticationTokenException";
-import VerifiedAccountException from "../../../../exceptions/VerifiedAccountException";
-import RequestVerifiedAccountDto from "../dto/authentication/verified-account/requestVerifiedAccount.dto";
+import VerifyAccountException from "../../../../exceptions/VerifyAccountException";
+import RequestVerifyAccountDto from "../dto/authentication/verify-account/requestVerifyAccount.dto";
 import UserNotFoundException from "../../../../exceptions/UserNotFoundException";
-import VerifiedAccountDto from "../dto/authentication/verified-account/verifiedAccount.dto";
-import VerifiedAccountWithParametersDto from "../dto/authentication/verified-account/verifiedAccountWithParameters.dto";
+import VerifyAccountDto from "../dto/authentication/verify-account/verifyAccount.dto";
+import VerifyAccountWithParametersDto from "../dto/authentication/verify-account/verifyAccountWithParameters.dto";
 import RequestChangePasswordDto from "../dto/authentication/forgot-password/requestChangePassword.dto";
 import ForgotPasswordDto from "../dto/authentication/forgot-password/forgotPassword.dto";
 import queryParamsMiddleware from "../../../../middleware/queryParams.middleware";
@@ -50,12 +50,12 @@ export default class AuthenticationController extends ControllerBase implements 
             // tslint:disable-next-line:max-line-length
             .get(`${this.path}/authentication/facebook/callback`, passport.authenticate('facebook', {failureRedirect: '/'}), this.loginWithFacebook)
 
-            // verified account
+            // verify account
             // tslint:disable-next-line:max-line-length
-            .post(`${this.path}/authentication/request-verify-account`, validationMiddleware(RequestVerifiedAccountDto), this.requestVerifiedAccount)
-            .post(`${this.path}/authentication/verify-account`, validationMiddleware(VerifiedAccountDto), this.verifiedAccount)
+            .post(`${this.path}/authentication/request-verify-account`, validationMiddleware(RequestVerifyAccountDto), this.requestVerifyAccount)
+            .post(`${this.path}/authentication/verify-account`, validationMiddleware(VerifyAccountDto), this.verifyAccount)
             // tslint:disable-next-line:max-line-length
-            .get(`${this.path}/authentication/verify-account`, queryParamsMiddleware(VerifiedAccountWithParametersDto), this.verifiedAccount)
+            .get(`${this.path}/authentication/verify-account`, queryParamsMiddleware(VerifyAccountWithParametersDto), this.verifyAccount)
 
             // password
             // tslint:disable-next-line:max-line-length
@@ -70,7 +70,7 @@ export default class AuthenticationController extends ControllerBase implements 
             const userData: RegisterDto = request.body;
             const user = await this.authenticationService.register(userData);
             if (user) {
-                const sendEmail = await this.sendMailService.sendMailVerifiedAccount(user);
+                const sendEmail = await this.sendMailService.sendMailVerifyAccount(user);
                 if (sendEmail) {
                     response.send({
                         data: null,
@@ -240,11 +240,11 @@ export default class AuthenticationController extends ControllerBase implements 
         }
     };
 
-    private requestVerifiedAccount = async (request: Request, response: Response, next: NextFunction) => {
+    private requestVerifyAccount = async (request: Request, response: Response, next: NextFunction) => {
         try {
             const user = await userModel.findOne({email: request.body.email});
             if (user) {
-                const sendEmail = await this.sendMailService.sendMailVerifiedAccount(user);
+                const sendEmail = await this.sendMailService.sendMailVerifyAccount(user);
                 if (sendEmail) {
                     response.send({
                         data: null,
@@ -261,7 +261,7 @@ export default class AuthenticationController extends ControllerBase implements 
         }
     };
 
-    private verifiedAccount = async (request: Request, response: Response, next: NextFunction) => {
+    private verifyAccount = async (request: Request, response: Response, next: NextFunction) => {
         try {
             let dataRequest;
             if (request.method === 'POST') {
@@ -292,7 +292,7 @@ export default class AuthenticationController extends ControllerBase implements 
                         next(new AuthenticationTokenException());
                     }
                 } else {
-                    next(new VerifiedAccountException());
+                    next(new VerifyAccountException());
                 }
             } else {
                 next(new UserNotFoundException());
