@@ -3,6 +3,9 @@ import Controller from "../../../../../interfaces/controller.interface";
 import authMiddleware from "../../../../../middleware/auth.middleware";
 import Role from "../../../../../models/role.model";
 import {NextFunction, Request, Response} from "express";
+import userModel from "../../../../../models/user.model";
+import userTransformer from "../transformers/user.tranformer";
+import UserNotFoundException from "../../../../../exceptions/UserNotFoundException";
 
 export default class AdminUserController extends ControllerBase implements Controller {
 
@@ -14,6 +17,7 @@ export default class AdminUserController extends ControllerBase implements Contr
     private initializeRoutes = () => {
         this.router
             .get(`${this.path}/users`, authMiddleware(Role.Admin), this.getUsers)
+            .get(`${this.path}/user/:username`, authMiddleware(Role.Admin), this.getUser)
     };
 
     private getUsers = async (request: Request, response: Response, next: NextFunction) => {
@@ -25,6 +29,26 @@ export default class AdminUserController extends ControllerBase implements Contr
                 status: 200,
                 success: true,
             });
+        } catch (e) {
+            next(e)
+        }
+    };
+
+    private getUser = async (request: Request, response: Response, next: NextFunction) => {
+        try {
+            const user = await userModel.findOne({username: request.params.username});
+            if (user) {
+                response.send({
+                    data: {
+                        ...userTransformer(user),
+                    },
+                    message: "",
+                    status: 200,
+                    success: true,
+                });
+            } else {
+                next(new UserNotFoundException());
+            }
         } catch (e) {
             next(e)
         }

@@ -108,7 +108,7 @@ export default class AuthenticationController extends ControllerBase implements 
 
                     response.send({
                         data: {
-                            ...userTransformer(user.toJSON()),
+                            ...userTransformer(user),
                             ...valueToken
                         },
                         message: "Đăng nhập thành công",
@@ -138,7 +138,7 @@ export default class AuthenticationController extends ControllerBase implements 
         try {
             const user = await userModel.findById(this.getProfile()._id);
             response.send({
-                data: {...userTransformer(user.toJSON())},
+                data: {...userTransformer(user)},
                 message: "",
                 status: 200,
                 success: true,
@@ -160,7 +160,7 @@ export default class AuthenticationController extends ControllerBase implements 
 
                 response.send({
                     data: {
-                        ...userTransformer(user.toJSON()),
+                        ...userTransformer(user),
                         ...this.tokenService.createValueToken(user)
                     },
                     message: "Đăng nhập thành công",
@@ -180,7 +180,7 @@ export default class AuthenticationController extends ControllerBase implements 
 
                 response.send({
                     data: {
-                        ...userTransformer(userData.toJSON()),
+                        ...userTransformer(userData),
                         ...this.tokenService.createValueToken(userData)
                     },
                     message: "Đăng nhập thành công",
@@ -205,7 +205,7 @@ export default class AuthenticationController extends ControllerBase implements 
 
                 response.send({
                     data: {
-                        ...userTransformer(user.toJSON()),
+                        ...userTransformer(user),
                         ...this.tokenService.createValueToken(user)
                     },
                     message: "Đăng nhập thành công",
@@ -225,7 +225,7 @@ export default class AuthenticationController extends ControllerBase implements 
 
                 response.send({
                     data: {
-                        ...userTransformer(userData.toJSON()),
+                        ...userTransformer(userData),
                         ...this.tokenService.createValueToken(userData)
                     },
                     message: "Đăng nhập thành công",
@@ -280,7 +280,7 @@ export default class AuthenticationController extends ControllerBase implements 
 
                         response.send({
                             data: {
-                                ...userTransformer(user.toJSON()),
+                                ...userTransformer(user),
                             },
                             message: "Tài khoản của bạn đã được xác minh thành công, xin mời đăng nhập",
                             status: 200,
