@@ -26,6 +26,11 @@ export class AdminUserService extends ServiceBase {
                         $nin: []
                     }
                 },
+                {
+                    confirmed: options.confirmed ? options.confirmed : {
+                        $nin: []
+                    }
+                },
             ]
         };
         return this.offsetPagination(criteria, options.limit, options.page, [], userTransformer);
