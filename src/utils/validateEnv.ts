@@ -24,6 +24,9 @@ function validateEnv() {
 
         FACEBOOK_CLIENT_ID: str(),
         FACEBOOK_CLIENT_SECRET: str(),
+
+        INSTAGRAM_CLIENT_ID: str(),
+        INSTAGRAM_CLIENT_SECRET: str()
     });
 }
 
