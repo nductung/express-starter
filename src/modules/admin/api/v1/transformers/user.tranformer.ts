@@ -13,7 +13,7 @@ const singleItem = (item: InterfaceModelUser) => {
         username: item.username,
         firstName: item.firstName,
         lastName: item.lastName,
-        fullName: item.fullName,
+        fullName: item.fullName ? item.fullName : item.firstName + ' ' + item.lastName,
         picture: item.picture,
         gender: item.gender,
         phone: item.phone,

@@ -10,9 +10,9 @@ export interface PaginationScrollInterface {
 
 export interface PaginationOffsetInterface {
     pageInfo: {
-        total: number,
+        count: number,
         current: number,
-        total_record: number,
+        total: number,
         limit: number
     },
     edges: any[]
@@ -101,13 +101,13 @@ export class ServiceBase {
             .populate(populate)
             .lean()
             .exec();
-        const totalRecord = await this.model.find(criteria).countDocuments().exec();
+        const total = await this.model.find(criteria).countDocuments().exec();
         return {
             pageInfo: {
-                total_record: totalRecord,
-                limit: limits,
-                total: Math.ceil(totalRecord / limits),
+                count: Math.ceil(total / limits),
                 current: parseInt(page ? page : "1", 10),
+                total,
+                limit: limits,
             },
             edges: transformer ? transformer(items) : items
         };
