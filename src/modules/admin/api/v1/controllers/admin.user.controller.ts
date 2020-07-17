@@ -18,6 +18,7 @@ export default class AdminUserController extends ControllerBase implements Contr
         this.router
             .get(`${this.path}/users`, authMiddleware(Role.Admin), this.getUsers)
             .get(`${this.path}/user/:username`, authMiddleware(Role.Admin), this.getUser)
+            .delete(`${this.path}/user/:username`, authMiddleware(Role.Admin), this.deleteUser)
     };
 
     private getUsers = async (request: Request, response: Response, next: NextFunction) => {
@@ -43,6 +44,25 @@ export default class AdminUserController extends ControllerBase implements Contr
                         ...userTransformer(user),
                     },
                     message: "",
+                    status: 200,
+                    success: true,
+                });
+            } else {
+                next(new UserNotFoundException());
+            }
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    private deleteUser = async (request: Request, response: Response, next: NextFunction) => {
+        try {
+            const user = await userModel.findOne({username: request.params.username});
+            if (user) {
+                await userModel.findByIdAndRemove(user._id);
+                response.send({
+                    data: null,
+                    message: `Bạn đã xóa tài khoản ${user.username} khỏi hệ thống`,
                     status: 200,
                     success: true,
                 });
