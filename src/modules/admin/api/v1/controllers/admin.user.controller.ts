@@ -53,7 +53,7 @@ export default class AdminUserController extends ControllerBase implements Contr
         } catch (e) {
             next(e)
         }
-    }
+    };
 
     private deleteUser = async (request: Request, response: Response, next: NextFunction) => {
         try {

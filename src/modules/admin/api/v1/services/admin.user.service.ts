@@ -22,7 +22,7 @@ export class AdminUserService extends ServiceBase {
                     }
                 },
                 {
-                    gender: options.gender ? options.gender : {
+                    email: options.email ? options.email : {
                         $nin: []
                     }
                 },
