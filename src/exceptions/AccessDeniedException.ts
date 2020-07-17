@@ -2,7 +2,7 @@ import HttpException from './HttpException';
 
 class AccessDeniedException extends HttpException {
     constructor() {
-        super(401, 'Truy cập bị từ chối');
+        super(403, 'Truy cập bị từ chối');
     }
 }
 
