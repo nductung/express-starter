@@ -5,14 +5,10 @@ import TokenService from "../../../../services/token.service";
 import {NextFunction, Request, Response} from 'express';
 import * as bcrypt from 'bcrypt';
 import WrongCredentialsException from "../../../../exceptions/WrongCredentialsException";
-import authMiddleware from "../../../../middleware/auth.middleware";
 import validationMiddleware from "../../../../middleware/validation.middleware";
 import userModel from "../../../../models/user.model";
-import Role from "../../../../models/role.model";
 import Controller from '../../../../interfaces/controller.interface';
-import ChangePasswordDto from "../dto/authentication/change-password/changePassword.dto";
 import userTransformer from "../transformers/user.tranformer";
-import CurrentPasswordIncorrectException from "../../../../exceptions/CurrentPasswordIncorrectException";
 import SendMailService from "../../../../services/sendMail.service";
 import CannotSendEmailException from "../../../../exceptions/CannotSendEmail.exception";
 import AuthenticationTokenException from "../../../../exceptions/AuthenticationTokenException";
@@ -41,7 +37,6 @@ export default class AuthenticationController extends ControllerBase implements 
 
             .post(`${this.path}/authentication/register`, validationMiddleware(RegisterDto), this.registration)
             .post(`${this.path}/authentication/login`, validationMiddleware(LoginDto), this.loggingIn)
-            .get(`${this.path}/current`, authMiddleware(Role.User), this.getCurrent)
 
             .post(`${this.path}/authentication/request-verify-account`,
                 validationMiddleware(RequestVerifyAccountDto), this.requestVerifyAccount)
@@ -52,9 +47,6 @@ export default class AuthenticationController extends ControllerBase implements 
             .post(`${this.path}/authentication/request-forgot-password`,
                 validationMiddleware(RequestChangePasswordDto), this.requestForgotPassword)
             .post(`${this.path}/authentication/forgot-password`, validationMiddleware(ForgotPasswordDto), this.forgotPassword)
-
-            .post(`${this.path}/authentication/change-password`,
-                authMiddleware(Role.User), validationMiddleware(ChangePasswordDto), this.changePassword)
     };
 
     private registration = async (request: Request, response: Response, next: NextFunction) => {
@@ -121,20 +113,6 @@ export default class AuthenticationController extends ControllerBase implements 
             }
         } else {
             next(new WrongCredentialsException());
-        }
-    };
-
-    private getCurrent = async (request: Request, response: Response, next: NextFunction) => {
-        try {
-            const user = await userModel.findById(this.getProfile()._id);
-            response.send({
-                data: {...userTransformer(user)},
-                message: "",
-                status: 200,
-                success: true,
-            });
-        } catch (e) {
-            next(e);
         }
     };
 
@@ -248,30 +226,6 @@ export default class AuthenticationController extends ControllerBase implements 
             }
         } catch (e) {
             next(e)
-        }
-    };
-
-    private changePassword = async (request: Request, response: Response, next: NextFunction) => {
-        try {
-            const user = await userModel.findById(this.getProfile()._id);
-            const match = await bcrypt.compare(request.body.currentPassword, user.password);
-
-            if (match) {
-                user.password = await bcrypt.hash(request.body.newPassword, 10);
-                user.updatedAt = new Date();
-                await user.save();
-                response.send({
-                    data: null,
-                    message: "Thay đỏi mật khẩu thành công",
-                    status: 200,
-                    success: true,
-                });
-            } else {
-                next(new CurrentPasswordIncorrectException());
-            }
-
-        } catch (e) {
-            next(e);
         }
     };
 
