@@ -12,7 +12,6 @@ import Role from "../../../../models/role.model";
 import Controller from '../../../../interfaces/controller.interface';
 import ChangePasswordDto from "../dto/authentication/change-password/changePassword.dto";
 import userTransformer from "../transformers/user.tranformer";
-import * as passport from "passport";
 import CurrentPasswordIncorrectException from "../../../../exceptions/CurrentPasswordIncorrectException";
 import SendMailService from "../../../../services/sendMail.service";
 import CannotSendEmailException from "../../../../exceptions/CannotSendEmail.exception";
@@ -44,27 +43,18 @@ export default class AuthenticationController extends ControllerBase implements 
             .post(`${this.path}/authentication/login`, validationMiddleware(LoginDto), this.loggingIn)
             .get(`${this.path}/current`, authMiddleware(Role.User), this.getCurrent)
 
-            // oauth 2.0
-            .get(`${this.path}/authentication/google`, passport.authenticate('google', {scope: ['profile', 'email']}))
-            // tslint:disable-next-line:max-line-length
-            .get(`${this.path}/authentication/google/callback`, passport.authenticate('google', {failureRedirect: `/`}), this.loginWithGoogle)
-            .get(`${this.path}/authentication/facebook`, passport.authenticate('facebook', {scope: 'email'}))
-            // tslint:disable-next-line:max-line-length
-            .get(`${this.path}/authentication/facebook/callback`, passport.authenticate('facebook', {failureRedirect: '/'}), this.loginWithFacebook)
-
-            // verify account
-            // tslint:disable-next-line:max-line-length
-            .post(`${this.path}/authentication/request-verify-account`, validationMiddleware(RequestVerifyAccountDto), this.requestVerifyAccount)
+            .post(`${this.path}/authentication/request-verify-account`,
+                validationMiddleware(RequestVerifyAccountDto), this.requestVerifyAccount)
+            .get(`${this.path}/authentication/verify-account`,
+                queryParamsMiddleware(VerifyAccountWithParametersDto), this.verifyAccount)
             .post(`${this.path}/authentication/verify-account`, validationMiddleware(VerifyAccountDto), this.verifyAccount)
-            // tslint:disable-next-line:max-line-length
-            .get(`${this.path}/authentication/verify-account`, queryParamsMiddleware(VerifyAccountWithParametersDto), this.verifyAccount)
 
-            // password
-            // tslint:disable-next-line:max-line-length
-            .post(`${this.path}/authentication/request-forgot-password`, validationMiddleware(RequestChangePasswordDto), this.requestForgotPassword)
+            .post(`${this.path}/authentication/request-forgot-password`,
+                validationMiddleware(RequestChangePasswordDto), this.requestForgotPassword)
             .post(`${this.path}/authentication/forgot-password`, validationMiddleware(ForgotPasswordDto), this.forgotPassword)
-            // tslint:disable-next-line:max-line-length
-            .post(`${this.path}/authentication/change-password`, authMiddleware(Role.User), validationMiddleware(ChangePasswordDto), this.changePassword)
+
+            .post(`${this.path}/authentication/change-password`,
+                authMiddleware(Role.User), validationMiddleware(ChangePasswordDto), this.changePassword)
     };
 
     private registration = async (request: Request, response: Response, next: NextFunction) => {
@@ -145,96 +135,6 @@ export default class AuthenticationController extends ControllerBase implements 
             });
         } catch (e) {
             next(e);
-        }
-    };
-
-    private loginWithGoogle = async (request: any, response: Response, next: NextFunction) => {
-        try {
-            const data = request.user._json;
-            const user = await userModel.findOne({email: data.email});
-            if (user) {
-                if (!user.picture || user.picture !== data.picture) {
-                    user.picture = data.picture;
-                    await user.save();
-                }
-
-                response.send({
-                    data: {
-                        ...userTransformer(user),
-                        ...this.tokenService.createValueToken(user)
-                    },
-                    message: "Đăng nhập thành công",
-                    status: 200,
-                    success: true,
-                })
-            } else {
-                const userData = new userModel();
-                userData.firstName = data.given_name;
-                userData.lastName = data.family_name;
-                userData.username = await this.authenticationService.usernameGenerator(data.email);
-                userData.picture = data.picture;
-                userData.password = await bcrypt.hash('12356890', 10);
-                userData.email = data.email;
-
-                await userData.save();
-
-                response.send({
-                    data: {
-                        ...userTransformer(userData),
-                        ...this.tokenService.createValueToken(userData)
-                    },
-                    message: "Đăng nhập thành công",
-                    status: 200,
-                    success: true,
-                });
-            }
-        } catch (e) {
-            next(e)
-        }
-    };
-
-    private loginWithFacebook = async (request: any, response: Response, next: NextFunction) => {
-        try {
-            const data = request.user._json;
-            const user = await userModel.findOne({email: data.email});
-            if (user) {
-                if (!user.picture || user.picture !== data.picture) {
-                    user.picture = data.picture.data.url;
-                    await user.save();
-                }
-
-                response.send({
-                    data: {
-                        ...userTransformer(user),
-                        ...this.tokenService.createValueToken(user)
-                    },
-                    message: "Đăng nhập thành công",
-                    status: 200,
-                    success: true,
-                })
-            } else {
-                const userData = new userModel();
-                userData.firstName = data.first_name;
-                userData.lastName = data.last_name;
-                userData.username = await this.authenticationService.usernameGenerator(data.email);
-                userData.picture = data.picture.data.url;
-                userData.password = await bcrypt.hash('12356890', 10);
-                userData.email = data.email;
-
-                await userData.save();
-
-                response.send({
-                    data: {
-                        ...userTransformer(userData),
-                        ...this.tokenService.createValueToken(userData)
-                    },
-                    message: "Đăng nhập thành công",
-                    status: 200,
-                    success: true,
-                });
-            }
-        } catch (e) {
-            next(e)
         }
     };
 
