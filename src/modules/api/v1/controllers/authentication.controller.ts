@@ -33,8 +33,6 @@ export default class AuthenticationController extends ControllerBase implements 
 
     private initializeRoutes = () => {
         this.router
-            .get(`/`, (request: Request, response: Response) => response.send('Hello World!'))
-
             .post(`${this.path}/authentication/register`, validationMiddleware(RegisterDto), this.registration)
             .post(`${this.path}/authentication/login`, validationMiddleware(LoginDto), this.loggingIn)
 

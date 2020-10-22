@@ -20,14 +20,11 @@ export default class OauthController extends ControllerBase implements Controlle
         this.router
             .get(`${this.path}/oauth/google`, passport.authenticate('google', {scope: ['profile', 'email']}))
             .get(`${this.path}/oauth/facebook`, passport.authenticate('facebook', {scope: 'email'}))
-            .get(`${this.path}/oauth/instagram`, passport.authenticate('instagram'))
 
             .get(`${this.path}/oauth/google/callback`,
                 passport.authenticate('google', {failureRedirect: `/`}), this.loginWithGoogle)
             .get(`${this.path}/oauth/facebook/callback`,
                 passport.authenticate('facebook', {failureRedirect: '/'}), this.loginWithFacebook)
-            .get(`${this.path}/oauth/instagram/callback`,
-                passport.authenticate('instagram', {failureRedirect: `/`}), this.loginWithInstagram)
     };
 
     private loginWithGoogle = async (request: any, response: Response, next: NextFunction) => {
@@ -115,14 +112,6 @@ export default class OauthController extends ControllerBase implements Controlle
                     success: true,
                 });
             }
-        } catch (e) {
-            next(e)
-        }
-    };
-
-    private loginWithInstagram = async (request: any, response: Response, next: NextFunction) => {
-        try {
-            //
         } catch (e) {
             next(e)
         }
