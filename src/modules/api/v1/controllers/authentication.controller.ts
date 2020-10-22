@@ -71,7 +71,7 @@ export default class AuthenticationController extends ControllerBase implements 
 
     private loggingIn = async (request: Request, response: Response, next: NextFunction) => {
         const logInData: LoginDto = request.body;
-        const user = await this.user.findOne({username: logInData.username});
+        const user = await this.user.findOne({email: logInData.email});
         if (user && user.role === 'user') {
             const isPasswordMatching = await bcrypt.compare(
                 logInData.password,
