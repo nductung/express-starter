@@ -14,7 +14,7 @@ class ForgotPasswordDto {
     @MinLength(8)
     @IsString()
     @IsNotEmpty()
-    public newPassword!: string;
+    public password!: string;
 
     @ConfirmPasswordDto({message: 'Mật khẩu mới và mật khẩu xác nhận không giống nhau'})
     @MinLength(8)
