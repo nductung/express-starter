@@ -40,6 +40,7 @@ export default class UserController extends ControllerBase implements Controller
             if (data.picture) {
                 user.picture = data.picture;
             }
+            user.updatedAt = new Date();
             await user.save();
             response.send({
                 data: {...userTransformer(user)},
