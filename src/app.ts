@@ -70,8 +70,8 @@ class App {
         // session.
         this.app.use(passport.initialize());
         this.app.use(passport.session());
-        this.app.use(bodyParser.json());
-        this.app.use(bodyParser.urlencoded({extended: true}));
+        this.app.use(bodyParser.json({ limit: '10mb' }));
+        this.app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
         this.app.use(cors({credentials: true, origin: true}));
         this.app.use(cookieParser());
         this.app.use(express.static(path.join(process.cwd(), 'public')));

@@ -9,6 +9,7 @@ import validationMiddleware from "../../../../middleware/validation.middleware";
 import ChangePasswordDto from "../dto/authentication/change-password/changePassword.dto";
 import * as bcrypt from "bcrypt";
 import CurrentPasswordIncorrectException from "../../../../exceptions/CurrentPasswordIncorrectException";
+import ChangeInformationDto from "../dto/changeInformation.dto";
 
 export default class UserController extends ControllerBase implements Controller {
 
@@ -20,8 +21,35 @@ export default class UserController extends ControllerBase implements Controller
     private initializeRoutes = () => {
         this.router
             .get(`${this.path}/users/current`, authMiddleware(Role.User), this.getCurrent)
+            .put(`${this.path}/users/change-information`,
+                authMiddleware(Role.User), validationMiddleware(ChangeInformationDto), this.changeInformation)
             .post(`${this.path}/users/change-password`,
                 authMiddleware(Role.User), validationMiddleware(ChangePasswordDto), this.changePassword)
+    };
+
+    private changeInformation = async (request: Request, response: Response, next: NextFunction) => {
+        try {
+            const data = request.body;
+            const user = await userModel.findById(this.getProfile()._id);
+            if (data.firstName) {
+                user.firstName = data.firstName;
+            }
+            if (data.lastName) {
+                user.lastName = data.lastName;
+            }
+            if (data.picture) {
+                user.picture = data.picture;
+            }
+            await user.save();
+            response.send({
+                data: {...userTransformer(user)},
+                message: "Thay đổi thông tin thành công",
+                status: 200,
+                success: true,
+            });
+        } catch (e) {
+            next(e);
+        }
     };
 
     private getCurrent = async (request: Request, response: Response, next: NextFunction) => {
