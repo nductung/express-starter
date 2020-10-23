@@ -96,7 +96,7 @@ export default class AuthenticationController extends ControllerBase implements 
                         success: true,
                     });
                 } else {
-                    response.send({
+                    response.status(400).send({
                         data: {
                             username: user.username,
                             email: user.email
