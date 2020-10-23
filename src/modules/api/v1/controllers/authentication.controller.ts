@@ -212,7 +212,7 @@ export default class AuthenticationController extends ControllerBase implements 
 
                     response.send({
                         data: null,
-                        message: "Thay đỏi mật khẩu thành công",
+                        message: "Thay đổi mật khẩu thành công",
                         status: 200,
                         success: true,
                     });
